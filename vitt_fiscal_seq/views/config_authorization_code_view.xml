@@ -93,14 +93,14 @@
 
                                 </group>
                             </group>
-                            <field name="fiscal_sequence_regime_ids" context="{'company_id': company_id, 'default_is_fiscal_sequence':1, 'default_authorization_code_id': id}">
+                            <field name="fiscal_sequence_regime_ids" context="{'company_id': company_id.id, 'default_is_fiscal_sequence':1, 'default_authorization_code_id': id}">
                                 <tree editable="top">
                                     <field name="authorization_code_id" invisible="1"/>
-                                    <field name="sequence_id"  domain="[('is_fiscal_sequence', '=', True),('company_id', '=', company_id)]" context="{'default_company_id': company_id, 'default_is_fiscal_sequence':1}" readonly="1"/>
+                                    <field name="sequence_id"  domain="[('is_fiscal_sequence', '=', True),('company_id', '=', company_id.id)]" context="{'default_company_id': company_id, 'default_is_fiscal_sequence':1}" readonly="1"/>
                                     <field name="_from"/>
                                     <field name="_to"/>
-                                    <field name="user_ids" domain="[('company_id', '=', company_id)]" widget="many2many_tags"/>
-                                    <field name="journal_id" domain="[('company_id', '=', company_id), ('type', 'in', ['sale','purchase','general'])]" readonly="1"/> 
+                                    <field name="user_ids" domain="[('company_id', '=', company_id.id)]" widget="many2many_tags"/>
+                                    <field name="journal_id" domain="[('company_id', '=', company_id.id), ('type', 'in', ['sale','purchase','general'])]" readonly="1"/> 
                                     <field name="actived"/>           
                                 </tree>
 

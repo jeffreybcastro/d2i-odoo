@@ -11,10 +11,10 @@
                     <separator string="Journal Settings and Users"/>
                     <group colspan="4">
                         <group cols="2">
-                            <field name="journal_id" placeholder="Select a journal..."/>
+                            <field name="journal_id" placeholder="Select a journal..." domain="[('company_id', '=', company_id.id), ('type', 'in', ['sale','purchase','general'])]"/>
                         </group>
                         <group cols="2">
-                            <field name="user_ids" placeholder="Select users..."  widget="many2many_tags"/> 
+                            <field name="user_ids" placeholder="Select users..." domain="[('company_id', '=', company_id.id)]" widget="many2many_tags"/> 
                         </group>
                     </group>
                     <separator string="Fiscal Sequences"/>
