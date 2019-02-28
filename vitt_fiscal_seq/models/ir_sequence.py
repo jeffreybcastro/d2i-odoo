@@ -10,13 +10,13 @@ class Sequence(models.Model):
 
     fiscal_sequence_regime_ids = fields.One2many("vitt_fiscal_seq.fiscal_sequence_regime", "sequence_id")
     expiration_date = fields.Date('Expiration Date')
-    vitt_min_value = fields.Char('Minimal number', readonly=True, compute='display_minimal_value')
-    vitt_max_value = fields.Char('Max number', readonly=True,compute='display_max_value')
+    vitt_min_value = fields.Char('Minimal number', readonly=True, compute = 'display_minimal_value')
+    vitt_max_value = fields.Char('Max number', readonly=True, compute = 'display_max_value')
     percentage_alert = fields.Float('percentage alert', default=80)
     percentage = fields.Float('percentage', compute='compute_percentage')
-    vitt_prefix = fields.Char(string = 'Vitt Prefix',related='prefix')
-    vitt_padding = fields.Integer(string = 'Vitt Padding',related='padding')
-    vitt_number_next_actual = fields.Integer(string = 'Vitt Number Next', related='number_next_actual')
+    vitt_prefix = fields.Char(string = 'V Prefix', related='prefix' , default = 8)
+    vitt_padding = fields.Integer(string = ' V Number padding', related='padding')
+    vitt_number_next_actual = fields.Integer(string = ' V Next Number', related='number_next_actual')
     is_fiscal_sequence = fields.Boolean("Fiscal sequence")
     user_ids = fields.Many2many("res.users", string="Users")
 

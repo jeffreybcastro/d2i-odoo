@@ -4,5 +4,5 @@
 # directory
 ##############################################################################
 
-from . import models
-from . import wizard
+import models
+import wizard

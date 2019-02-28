@@ -9,11 +9,11 @@ class SequenceJournal(models.TransientModel):
     _description = "Journal Settings"
 
     journal_id = fields.Many2one("account.journal", "Journal", required=True)
-    vitt_prefix = fields.Char('Prefix')
+    vitt_prefix = fields.Char('Prefix', required=True)
     min_value = fields.Integer('Minimal value', required=True)
     max_value = fields.Integer('Max value', required=True)
     number_next = fields.Integer('Next Number to Use', required=True)
-    vitt_padding = fields.Integer('Number padding', default=8 )
+    vitt_padding = fields.Integer('Number padding', required=True)
     company_id = fields.Many2one('res.company', "Company")
     sequence_name = fields.Char("Sequence name")
     user_ids = fields.Many2many("res.users", string="Users")
@@ -23,7 +23,7 @@ class SequenceJournal(models.TransientModel):
         ('out_invoice', 'Customer Invoices'),
         ('out_refund', 'Credit Notes'),
         ('in_refund', 'Debit Notes'),
-        ('pos_order', 'Punto de Venta')
+        ('in_invoice', 'Supplier Invoice'),
     ], string='Sequence Type', required=True)
 
     @api.onchange('min_value')

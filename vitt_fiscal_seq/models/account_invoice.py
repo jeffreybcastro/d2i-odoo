@@ -2,11 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import Warning
-import itertools
-from datetime import date
-from datetime import datetime
-
-
+from itertools import ifilter
 # mapping invoice type to journal type
 TYPE2JOURNAL = {
     'out_invoice': 'sale',
@@ -15,32 +11,15 @@ TYPE2JOURNAL = {
     'in_refund': 'purchase',
 }
 
+
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
-
-    cai_shot        = fields.Char("Cai", readonly=True)
-    cai_expires_shot= fields.Date("Expiration date", readonly=True)
-    min_number_shot = fields.Char("Min Number", readonly=True)
-    max_number_shot = fields.Char("Max Number", readonly=True)
-
-    @api.multi
-    def invoice_validate(self):
-        for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
-            if regimen.actived:
-                self.cai_shot = regimen.authorization_code_id.name
-        # for validation in self.sequence_ids:  
-        #     self.cai_expires_shot = validation.expiration_date
-        #     self.min_number_shot = str(validation.vitt_min_value)
-        #     self.max_number_shot = str(validation.vitt_max_value)
-        return self.write({'state': 'open'})
-
-
 
     @api.multi
     @api.depends("company_id")
     def _default_fiscal_validated(self, company_id):
         if company_id:
-            fiscal_sequence_ids = self.env["vitt_fiscal_seq.authorization_code"].search([('company_id', '=', self.company_id.id), ('active', '=', True)])
+            fiscal_sequence_ids = self.env["vitt_fiscal_seq.authorization_code"].search([('company_id', '=', company_id.id), ('active', '=', True)])
             if fiscal_sequence_ids:
                 return True
             else:
@@ -58,8 +37,8 @@ class AccountInvoice(models.Model):
             ('code', '=', self.type),
             ('code', '=', 'in_refund'),
             '|',
-            ('user_ids', '=', self.user_id.id),
-            ('user_ids', '=', False),
+            ('user_ids', 'in', self.user_id.id),
+            ('user_ids', 'in', False),
         ]
         sequence = self.env['ir.sequence'].search(domain)
         for count in sequence:
@@ -72,21 +51,20 @@ class AccountInvoice(models.Model):
     # Unique number of the invoice, computed automatically when the invoice is created
     internal_number = fields.Char(string='Invoice Number', readonly=True, default=False, help="Unique number of the invoice, computed automatically when the invoice is created.", copy=False)
     sequence_ids = fields.Many2one("ir.sequence", "Fiscal Number", states={'draft': [('readonly', False)]},
-                                   domain="[('is_fiscal_sequence', '=',True),('active', '=', True), '|',('code','=', type),('code','=', 'in_refund'),('journal_id', '=', journal_id), '|', ('user_ids','=',False),('user_ids','=', user_id)]")
+                                   domain="[('is_fiscal_sequence', '=',True),('active', '=', True), '|',('code','=', type),('code','=', 'in_refund'),('journal_id', '=', journal_id), '|', ('user_ids','in',False),('user_ids','in', user_id)]")
 
     @api.one
+    @api.depends('journal_id')
     def get_totalt(self):
         self.amount_total_text=''
-        currency_name = self.env["res.currency"].search([('name', '=', self.currency_id.name)])
 
         if self.currency_id:
-            self.amount_total_text=self.to_word(self.amount_total,str(self.currency_id.name))
+            self.amount_total_text=self.to_word(self.amount_total,self.currency_id.name)
         else:
-            self.amount_total_text =self.to_word(self.amount_total,str(self.currency_id.name))
+            self.amount_total_text =self.to_word(self.amount_total,self.user_id.company_id.currency_id.name)
         return True
 
-    @api.multi 
-    def to_word(self,number,mi_moneda):
+    def to_word(self,number, mi_moneda):
         valor= number
         number=int(number)
         centavos=int((round(valor-number,2))*100)
@@ -145,27 +123,17 @@ class AccountInvoice(models.Model):
             {'country': u'Perú', 'currency': 'PEN', 'singular': u'NUEVO SOL', 'plural': u'NUEVOS SOLES', 'symbol': u'S/.'},
             {'country': u'Reino Unido', 'currency': 'GBP', 'singular': u'LIBRA', 'plural': u'LIBRAS', 'symbol': u'£'}
             )
-        # if mi_moneda != None:
-        #     try:
-        #         moneda = itertools.ifilter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
-        #         if number < 2:
-        #             moneda = moneda['singular']
-        #         else:
-        #             moneda = moneda['plural']
-        #     except:
-        #         return "Tipo de moneda inválida"
-        # else:
-        #     moneda = ""
-
-        #moneda = list(filter(lambda x: x['currency'] == mi_moneda, MONEDAS))
-        moneda = ''
-        if number < 2:
-            moneda = self.currency_id.currency_unit_label 
+        if mi_moneda != None:
+            try:
+                moneda = ifilter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
+                if number < 2:
+                    moneda = moneda['singular']
+                else:
+                    moneda = moneda['plural']
+            except:
+                return "Tipo de moneda inválida"
         else:
-            moneda = self.currency_id.currency_unit_label+'s'
-
-
-
+            moneda = ""
         converted = ''
         if not (0 < number < 999999999):
             return 'No es posible convertir el numero a letras'
@@ -194,7 +162,7 @@ class AccountInvoice(models.Model):
                 converted += '%s ' % self.convert_group(cientos)
         if(centavos)>0:
             converted+= "con %2i/100 "%centavos
-        converted += str(moneda)
+        converted += moneda
         return converted.title()
 
 
@@ -271,6 +239,7 @@ class AccountInvoice(models.Model):
                 output += '%s%s' % (DECENAS[int(n[1]) - 2], UNIDADES[int(n[2])])
 
         return output
+
     def addComa(self, snum ):
         s = snum;
         i = s.index('.') # Se busca la posición del punto decimal
@@ -285,7 +254,7 @@ class AccountInvoice(models.Model):
             vals["fiscal_control"] = 0
             vals["sequence_ids"] = 0
             if vals.get("company_id"):
-                vals["fiscal_control"] = self._default_fiscal_validated(self.company_id.id) #vals.get("company_id"))
+                vals["fiscal_control"] = self._default_fiscal_validated(vals.get("company_id.id"))
             else:
                 company_id = self.env["res.users"].browse(vals.get("user_id")).company_id.id
                 vals["fiscal_control"] = self._default_fiscal_validated(company_id)
@@ -317,9 +286,8 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_date_assign(self):
         res = super(AccountInvoice, self).action_date_assign()
-        today = datetime.now().date()
         if self.sequence_ids:
-            if  today > self.sequence_ids.expiration_date:
+            if self.date_invoice > self.sequence_ids.expiration_date:
                 raise Warning(_('The Expiration Date for this fiscal sequence is %s ') % (self.sequence_ids.expiration_date))
             if self.sequence_ids.vitt_number_next_actual > self.sequence_ids.max_value:
                 raise Warning(_('The range of sequence numbers is finished'))
@@ -357,32 +325,3 @@ class AccountInvoice(models.Model):
                 else:
                     inv.move_id.write({'name': inv.internal_number})
         return res
-
-
-
-# class PosOrder(models.Model):
-#     _inherit = "pos.order"
-
-#     sar_number = fields.Char(string='Número de Factura', readonly=True, default=False, help="Unique number of the invoice, computed automatically when the invoice is created.", copy=False)
-#     sequence_ids = fields.Many2one("ir.sequence", "Fiscal Number", states={'draft': [('readonly', False)]},
-#                                    domain="[('is_fiscal_sequence', '=',True),('active', '=', True), '|',('code','=', type),('code','=', 'in_refund'),('journal_id', '=', journal_id), '|', ('user_ids','=',False),('user_ids','=', user_id)]")
-#     @api.multi
-#     def create(self,values):
-
-#         # sequen_code = self.env["ir.sequence"].search([('code', '=', 'pos_order'), ('active', '=', True)])
-        
-#         # today = datetime.today().date()
-#         # obj_date = datetime.strptime(sequen_code.expiration_date, '%Y-%m-%d')
-#         # if today > obj_date.date():
-#         #     raise Warning(_('The Expiration Date for this fiscal sequence is   %s ') % ( sequen_code.expiration_date))
-#         # elif sequen_code.vitt_number_next_actual < sequen_code.max_value:
-#         #         raise Warning(_('The range of sequence numbers is finished'))
-#         # else:
-#         new_name = self.env['ir.sequence'].next_by_code('pos_order')
-#         values['pos_reference'] = new_name
-#             # values['name'] = new_name
-#             # for pos in self:
-#             #     pos.write({'name': new_name})
-#         res = super(PosOrder, self).create(values)
-#         return res
-

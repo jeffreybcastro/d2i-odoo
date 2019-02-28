@@ -1,1 +1,1 @@
-from . import journal_settings
+import journal_settings
