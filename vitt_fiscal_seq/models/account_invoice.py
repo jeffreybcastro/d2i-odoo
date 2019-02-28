@@ -27,12 +27,17 @@ class AccountInvoice(models.Model):
         for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
             if regimen.actived:
                 self.cai_shot = regimen.authorization_code_id.name
-        for validation in self.sequence_ids:
-            if validation.is_fiscal_sequence:  
-                self.cai_expires_shot = validation.expiration_date
-                self.min_number_shot = str(validation.vitt_min_value)
-                self.max_number_shot = str(validation.vitt_max_value)
+                self.cai_expires_shot = regimen.authorization_code_id.fiscal_sequence_regime_ids.expiration_date
+                self.min_number_shot = str(regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_min_value)
+                self.max_number_shot = str( regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_max_value)
+
+        # for validation in self.sequence_ids:
+        #     if validation.is_fiscal_sequence:  
+        #         self.cai_expires_shot = validation.expiration_date
+        #         self.min_number_shot = str(validation.vitt_min_value)
+        #         self.max_number_shot = str(validation.vitt_max_value)
         return self.write({'state': 'open'})
+
     @api.multi
     @api.depends("company_id")
     def _default_fiscal_validated(self, company_id):
@@ -354,4 +359,3 @@ class AccountInvoice(models.Model):
         return res
 
 
-        
