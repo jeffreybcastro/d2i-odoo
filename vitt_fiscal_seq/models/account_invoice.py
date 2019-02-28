@@ -352,3 +352,6 @@ class AccountInvoice(models.Model):
                 else:
                     inv.move_id.write({'name': inv.internal_number})
         return res
+
+
+        
