@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="account.invoice_form" />
 
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet/h1/field[@name='sequence_number_next']" position="after">
+            <xpath expr="//form/sheet/h1/div/field[@name='sequence_number_next']" position="after">
                 <field name="internal_number" attrs="{'invisible': [('state','not in',('cancel'))]}"/>
             </xpath>
             <field name="payment_term_id" position="after">

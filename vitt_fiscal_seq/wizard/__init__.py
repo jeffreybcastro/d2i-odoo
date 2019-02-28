@@ -1,1 +1,3 @@
-import journal_settings
+##############################################################################
+from . import  journal_settings
+

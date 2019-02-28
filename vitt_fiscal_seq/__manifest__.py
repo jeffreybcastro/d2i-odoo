@@ -3,14 +3,14 @@
 ##############################################################################
 
 {
-    'name': "Facturación Electrónica Honduras",
+    'name': "Regulación del SAR",
     'summary': """
         Regulación del SAR para regimene de facturación para autoimpresores
         """,
     'description': """
          Regulación del SAR para regimene de facturación para autoimpresores
     """,
-    'author': 'César Alejandro Rodriguez.',
+    'author': 'D2i Solutions',
     'version': '1.0',
     'license': 'Other proprietary',
     'maintainer': '',
