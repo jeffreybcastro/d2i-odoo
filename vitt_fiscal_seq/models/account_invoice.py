@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-# For copyright and license notices, see __manifest__.py file in module root
-# directory
-##############################################################################
 from odoo import models, fields, api, _
 from odoo.exceptions import Warning
-from itertools import ifilter
+import itertools
+from datetime import date
+from datetime import datetime
+
 # mapping invoice type to journal type
 TYPE2JOURNAL = {
     'out_invoice': 'sale',
@@ -67,7 +65,8 @@ class AccountInvoice(models.Model):
             self.amount_total_text =self.to_word(self.amount_total,self.user_id.company_id.currency_id.name)
         return True
 
-    def to_word(self,number, mi_moneda):
+    @api.multi 
+    def to_word(self,number,mi_moneda):
         valor= number
         number=int(number)
         centavos=int((round(valor-number,2))*100)
@@ -126,17 +125,27 @@ class AccountInvoice(models.Model):
             {'country': u'Perú', 'currency': 'PEN', 'singular': u'NUEVO SOL', 'plural': u'NUEVOS SOLES', 'symbol': u'S/.'},
             {'country': u'Reino Unido', 'currency': 'GBP', 'singular': u'LIBRA', 'plural': u'LIBRAS', 'symbol': u'£'}
             )
-        if mi_moneda != None:
-            try:
-                moneda = ifilter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
-                if number < 2:
-                    moneda = moneda['singular']
-                else:
-                    moneda = moneda['plural']
-            except:
-                return "Tipo de moneda inválida"
+        # if mi_moneda != None:
+        #     try:
+        #         moneda = itertools.ifilter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
+        #         if number < 2:
+        #             moneda = moneda['singular']
+        #         else:
+        #             moneda = moneda['plural']
+        #     except:
+        #         return "Tipo de moneda inválida"
+        # else:
+        #     moneda = ""
+
+        #moneda = list(filter(lambda x: x['currency'] == mi_moneda, MONEDAS))
+        moneda = ''
+        if number < 2:
+            moneda = self.currency_id.currency_unit_label 
         else:
-            moneda = ""
+            moneda = self.currency_id.currency_unit_label+'s'
+
+
+
         converted = ''
         if not (0 < number < 999999999):
             return 'No es posible convertir el numero a letras'
@@ -165,10 +174,8 @@ class AccountInvoice(models.Model):
                 converted += '%s ' % self.convert_group(cientos)
         if(centavos)>0:
             converted+= "con %2i/100 "%centavos
-        converted += moneda
+        converted += str(moneda)
         return converted.title()
-
-
     def convert_group(self,n):
         UNIDADES = (
             '',
@@ -242,7 +249,6 @@ class AccountInvoice(models.Model):
                 output += '%s%s' % (DECENAS[int(n[1]) - 2], UNIDADES[int(n[2])])
 
         return output
-
     def addComa(self, snum ):
         s = snum;
         i = s.index('.') # Se busca la posición del punto decimal
