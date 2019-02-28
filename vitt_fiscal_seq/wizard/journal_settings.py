@@ -13,7 +13,7 @@ class SequenceJournal(models.TransientModel):
     min_value = fields.Integer('Minimal value', required=True)
     max_value = fields.Integer('Max value', required=True)
     number_next = fields.Integer('Next Number to Use', required=True)
-    vitt_padding = fields.Integer('Number padding', required=True,default = 8)
+    vitt_padding = fields.Integer('Number padding', required=True,default=8)
     company_id = fields.Many2one('res.company', "Company")
     sequence_name = fields.Char("Sequence name")
     user_ids = fields.Many2many("res.users", string="Users")
