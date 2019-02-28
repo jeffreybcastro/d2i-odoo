@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="vitt_fiscal_seq_manager" model="res.groups">
+            <field name="name">Multi Fiscal Sequences Manager </field>
+        </record>
+
+        <record id="vitt_fiscal_seq_user" model="res.groups">
+            <field name="name">Multi Fiscal Sequences User</field>
+        </record>
+    </data>
+</odoo>

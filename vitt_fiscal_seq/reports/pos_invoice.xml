@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_account_invoice_inherit2" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[@class='page']" position="replace">
+					<div style='text-align:center'>
+                    <img src='/web/binary/company_logo' style="width:30%;text-align:center;"/>     <hr></hr>             
+	                    <t t-if="o.company_id.name">
+	                    	<div style="width:100%;text-align:center;">
+	                    		<strong> 
+	                        		<t t-esc="o.company_id.name"/>
+	                    		</strong> 
+	                		</div>
+	                	</t>
+            		</div>
+
+            		<div style="width: 55%; float: left; padding: 0px 0px;">
+                       
+                        <t t-if="o.partner_id.name">
+                            Customer: 
+                            <t t-esc="o.partner_id.name"/>
+                            <br />
+                            RTN:<t t-esc="o.partner_id.vat"/><br />
+                        </t>
+
+                    	Usuario: <t t-esc="o.user_id.name"/><br />
+                       	Fecha :  <t t-esc="o.date_invoice"/>
+                    </div>
+                    
+				<br />
+                <table style="width:100%;text-align:center;">
+                    <colgroup>
+                        <col width='40%' />
+                        <col width='15%' />
+                        <col width='15%' />
+                        <col width='30%' />
+                    </colgroup>
+                    <tr style="border: 0.5px solid rgb(0, 0, 0);">
+                        <th style='text-align:left' >Producto</th>
+                        <th style='text-align:right' >Cantidad</th>
+                        <th style='text-align:right'>Precio</th>
+                        <th style='text-align:right' >Total</th>
+                    </tr>
+                    <tr t-foreach="o.invoice_line_ids" t-as="orderline">
+                        <td>
+                            <t style='text-align:left' t-esc="orderline.product_id.name"/>
+                             <t t-if="orderline.discount > 0">
+                                <div class="pos-disc-font">
+                                    With a <t t-esc="orderline.get_discount()"/>% discount
+                                </div>
+                            </t>
+                        </td>
+                        <td style='text-align:right'>
+                            <t t-esc="orderline.quantity"/>
+                        </td>
+                    </tr>
+                </table>
+
+
+
+
+                    <div class="clearfix">
+                        <div id="total" class="row">
+                            <div>
+                                <table>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+            </xpath>
+        </template>
+    </data>
+</odoo>
