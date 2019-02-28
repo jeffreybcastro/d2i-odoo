@@ -10,8 +10,8 @@ class Sequence(models.Model):
 
     fiscal_sequence_regime_ids = fields.One2many("vitt_fiscal_seq.fiscal_sequence_regime", "sequence_id")
     expiration_date = fields.Date('Expiration Date')
-    vitt_min_value = fields.Char('Minimal number', readonly=True)
-    vitt_max_value = fields.Char('Max number', readonly=True)
+    vitt_min_value = fields.Char('Minimal number', readonly=True, compute='display_minimal_value')
+    vitt_max_value = fields.Char('Max number', readonly=True,compute='display_max_value')
     percentage_alert = fields.Float('percentage alert', default=80)
     percentage = fields.Float('percentage', compute='compute_percentage')
     vitt_prefix = fields.Char(string = 'Vitt Prefix',related='prefix')

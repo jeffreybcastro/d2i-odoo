@@ -40,7 +40,7 @@ class AccountInvoice(models.Model):
     @api.depends("company_id")
     def _default_fiscal_validated(self, company_id):
         if company_id:
-            fiscal_sequence_ids = self.env["vitt_fiscal_seq.authorization_code"].search([('company_id', '=', company_id), ('active', '=', True)])
+            fiscal_sequence_ids = self.env["vitt_fiscal_seq.authorization_code"].search([('company_id', '=', self.company_id.id), ('active', '=', True)])
             if fiscal_sequence_ids:
                 return True
             else:

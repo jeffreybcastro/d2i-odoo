@@ -14,7 +14,8 @@
 <!--             <field name="number" position="before">
                 <label string="Factura Numero :" attrs="{'invisible': [('state', '=', 'draft')]}"/><br/>
             </field> -->
-            <field name="payment_term_id" position="after">
+
+        <field name="payment_term_id" position="after">
 		 <field name="fiscal_control" invisible="1"/>
                 <field name="sequence_ids" placeholder="Select a sequence..."  attrs="{'invisible': [('fiscal_control','=',False)], 
 'required': [('fiscal_control', '=', True)], 'readonly': [('state', 'in', ['done', 'open'])]}" options="{'no_create': True}"/>
