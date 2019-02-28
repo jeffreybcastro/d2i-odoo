@@ -96,7 +96,7 @@
                             <field name="fiscal_sequence_regime_ids" context="{'default_is_fiscal_sequence':1, 'default_authorization_code_id': id}">
                                 <tree editable="top">
                                     <field name="authorization_code_id" invisible="1"/>
-                                    <field name="sequence_id"  domain="[('is_fiscal_sequence', '=', True)]" context="{'default_company_id': company_id, 'default_is_fiscal_sequence':1}" readonly="1"/>
+                                    <field name="sequence_id"  domain="[('is_fiscal_sequence', '=', True)]" context="{'default_is_fiscal_sequence':1}" readonly="1"/>
                                     <field name="_from"/>
                                     <field name="_to"/>
                                     <field name="user_ids"  widget="many2many_tags"/>
