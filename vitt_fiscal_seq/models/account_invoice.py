@@ -16,6 +16,23 @@ TYPE2JOURNAL = {
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+
+    cai_shot        = fields.Char("Cai", readonly=True)
+    cai_expires_shot= fields.Date("Expiration date", readonly=True)
+    min_number_shot = fields.Char("Min Number", readonly=True)
+    max_number_shot = fields.Char("Max Number", readonly=True)
+
+    @api.multi
+    def invoice_validate(self):
+        for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
+            if regimen.actived:
+                self.cai_shot = regimen.authorization_code_id.name
+        for validation in self.sequence_ids:
+            if validation.is_fiscal_sequence:  
+                self.cai_expires_shot = validation.expiration_date
+                self.min_number_shot = str(validation.vitt_min_value)
+                self.max_number_shot = str(validation.vitt_max_value)
+        return self.write({'state': 'open'})
     @api.multi
     @api.depends("company_id")
     def _default_fiscal_validated(self, company_id):
