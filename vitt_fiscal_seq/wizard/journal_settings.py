@@ -13,7 +13,7 @@ class SequenceJournal(models.TransientModel):
     min_value = fields.Integer('Minimal value', required=True)
     max_value = fields.Integer('Max value', required=True)
     number_next = fields.Integer('Next Number to Use', required=True)
-    vitt_padding = fields.Integer('Number padding', required=True)
+    vitt_padding = fields.Integer('Number padding', required=True,default = 8)
     company_id = fields.Many2one('res.company', "Company")
     sequence_name = fields.Char("Sequence name")
     user_ids = fields.Many2many("res.users", string="Users")
@@ -96,7 +96,9 @@ class SequenceJournal(models.TransientModel):
                   'max_value': self.max_value,
                   'expiration_date': obj_code_authorization.expiration_date,
                   'vitt_prefix': self.vitt_prefix,
+                  'prefix': self.vitt_prefix,
                   'vitt_padding': self.vitt_padding,
+                  'padding': self.vitt_padding,
                   'vitt_min_value': vitt_min_value,
                   'vitt_max_value': vitt_max_value,
                   'vitt_number_next_actual': self.number_next,
@@ -159,7 +161,9 @@ class SequenceJournal(models.TransientModel):
                   'max_value': self.max_value,
                   'expiration_date': obj_code_authorization.expiration_date,
                   'vitt_prefix': self.vitt_prefix,
+                  'prefix': self.vitt_prefix,
                   'vitt_padding': self.vitt_padding,
+                  'padding': self.vitt_padding,
                   'vitt_min_value': vitt_min_value,
                   'vitt_max_value': vitt_max_value,
                   'is_fiscal_sequence': True,
