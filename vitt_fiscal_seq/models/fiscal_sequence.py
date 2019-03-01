@@ -29,6 +29,7 @@ class Authorization(models.Model):
         if vals.get("start_date") > vals.get("expiration_date"):
             raise Warning(_('Start date is greater than than expiration date'))
         _obj = self.env["vitt_fiscal_seq.authorization_code"].search([['active', '=', True] ,['code_type', '=', vals.get("code_type")]])
+        # _obj2 = self.env["vitt_fiscal_seq.authorization_code_type"].search([['id', '=', vals.get("code_type")]])
         array  = []
         if vals.get("start_date") > vals.get("expiration_date"):
             raise Warning(_('Start date is greater than than expiration date'))   
@@ -43,6 +44,22 @@ class Authorization(models.Model):
         elif len_cai.isupper() == False:
             raise Warning(_('Formato del CAI debe ser en mayuscula!')) 
         return res
+
+    @api.multi
+    def get_regimen(self):
+        dicc = { 
+        '000-001-01-' : '01 Facturas',
+        '000-001-06-' : '06 Notas de Crédito ',
+        '000-001-05-' : '05 Retención',
+        '000-001-07-' : '07 Notas de Débito',
+        '000-001-08-' : '08 Guía de de Remisión'
+        'Pos' : '09 Punto de Venta'
+        }
+        lst = []
+        for x in dicc.items():
+            lst.append(x)
+        return lst
+
     @api.one
     def get_from_to(self):
         for rec in self:
@@ -61,29 +78,20 @@ class Authorization(models.Model):
                 'nodestroy': True,
                 'target': 'new',
                 'context': ctx}
+
+    @api.multi
     def _update_ir_sequence(self):
         for fiscal_sequence in self.fiscal_sequence_regime_ids:
             if fiscal_sequence.sequence_id:
                 sequence_vals = {'expiration_date': self.expiration_date}
                 fiscal_sequence.sequence_id.write(sequence_vals)
         return True
+
+    @api.multi
     def write(self, vals):
         res = super(Authorization, self).write(vals)
         res = self._update_ir_sequence()
         return res
-    def get_regimen(self):
-        dicc = { 
-        '000-001-01-' : '01 Facturas',
-        '000-001-06-' : '06 Notas de Crédito ',
-        '000-001-05-' : '05 Retención',
-        '000-001-07-' : '07 Notas de Débito',
-        '000-001-08-' : '08 Guía de de Remisión',
-        'Pos' : '09 POS'
-        }
-        lst = []
-        for x in dicc.items():
-            lst.append(x)
-        return lst
 
 
 class Fiscal_sequence(models.Model):
@@ -105,6 +113,14 @@ class Fiscal_sequence(models.Model):
             res = prefix + str(number).zfill(padding)
         return res
 
+    @api.multi
+    def _update_ir_sequence(self):
+        if self.sequence_id:
+            sequence_vals = {'vitt_min_value': self.build_numbers(self._from),
+                             'vitt_max_value': self.build_numbers(self._to),
+                             }
+            self.sequence_id.write(sequence_vals)
+
     @api.onchange("actived")
     def onchange_actived(self):
         if not self.actived:
@@ -117,22 +133,21 @@ class Fiscal_sequence(models.Model):
     def write(self, vals):
         super(Fiscal_sequence, self).write(vals)
         self._update_ir_sequence()
+
+    @api.multi
     def create(self, vals):
         res = super(Fiscal_sequence, self).create(vals)
         if not vals.get("journal_id"):
             raise Warning(_('Set a journal and a sequence'))
         return res
+
+    # TODO : Verificar que no exista en facturas esta secuencia
+    @api.multi
     def unlink(self):
         invoice = self.env["account.invoice"].search([('sequence_ids', '=', self.sequence_id.id)])
         if invoice:
             raise Warning(_('You cannot delete a fiscal regime, you must disable it'))
         return super(Fiscal_sequence, self).unlink()
-    def _update_ir_sequence(self):
-        if self.sequence_id:
-            sequence_vals = {'vitt_min_value': self.build_numbers(self._from),
-                             'vitt_max_value': self.build_numbers(self._to),
-                             }
-            self.sequence_id.write(sequence_vals)
 
 
 # class Code_authorization_type(models.Model):
