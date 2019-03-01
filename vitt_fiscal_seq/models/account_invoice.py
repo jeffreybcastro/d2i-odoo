@@ -32,7 +32,7 @@ class AccountInvoice(models.Model):
                 # self.max_number_shot = str( regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_max_value)
 
         for validation in self.sequence_ids:
-            if validation.is_fiscal_sequence:  
+            if validation.is_fiscal_sequence == True:  
                 self.cai_expires_shot = validation.expiration_date
                 self.min_number_shot = str(validation.vitt_min_value)
                 self.max_number_shot = str(validation.vitt_max_value)
