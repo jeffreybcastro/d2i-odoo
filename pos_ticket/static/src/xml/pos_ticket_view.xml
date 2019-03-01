@@ -48,7 +48,7 @@
         </div>
 <hr></hr>
                 <div style="width: 100%; float: left; padding: 0px 0px;">
-                        <!-- <strong>Factura : <t t-esc="order.get_number_invoice()"/></strong><br/>     -->
+                        <strong>Factura : <t t-esc="order.get_number_invoice()"/></strong><br/>    
                         <t t-if="order.get_client()">
                             Cliente: 
                             <t t-esc="order.get_client().name"/>
@@ -179,9 +179,9 @@
                     <br/>
                     <hr></hr>
                     <t t-esc="receipt.footer" />
-                    <!-- <span>CAI : <br/> <t t-esc="order.get_cai()"/>  </span><br/> -->
-                    <!-- <span>Rango Autorizado :<br/>  <t t-esc="order.get_min_value()"/> <br/>hasta<br/>  <t t-esc="order.get_max_value()"/> </span><br/> -->
-                    <!-- <span>Fecha Expiración :<br/>  <t t-esc="order.get_expiration_date()"/></span><br/> -->
+                    <span>CAI : <br/> <t t-esc="order.get_cai()"/>  </span><br/>
+                    <span>Rango Autorizado :<br/>  <t t-esc="order.get_min_value()"/> <br/>hasta<br/>  <t t-esc="order.get_max_value()"/> </span><br/>
+                    <span>Fecha Expiración :<br/>  <t t-esc="order.get_expiration_date()"/></span><br/>
                 </div>
             </t>
 
