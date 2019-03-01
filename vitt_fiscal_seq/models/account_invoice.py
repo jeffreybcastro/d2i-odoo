@@ -27,9 +27,9 @@ class AccountInvoice(models.Model):
         for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
             if regimen.actived:
                 self.cai_shot = regimen.authorization_code_id.name
-                self.cai_expires_shot = regimen.authorization_code_id.fiscal_sequence_regime_ids.expiration_date
-                self.min_number_shot = str(regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_min_value)
-                self.max_number_shot = str( regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_max_value)
+                # self.cai_expires_shot = regimen.authorization_code_id.fiscal_sequence_regime_ids.expiration_date
+                # self.min_number_shot = str(regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_min_value)
+                # self.max_number_shot = str( regimen.authorization_code_id.fiscal_sequence_regime_ids.vitt_max_value)
 
         # for validation in self.sequence_ids:
         #     if validation.is_fiscal_sequence:  
