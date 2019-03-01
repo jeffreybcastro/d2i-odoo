@@ -49,7 +49,7 @@ class Authorization(models.Model):
             for obj in rec.fiscal_sequence_regime_ids:
                 self._from_ = obj._from
                 self._to_ = obj._to
-                
+
     @api.multi
     def get_action_journal_settings(self):
         ctx = {'company_id': self.company_id.id}
@@ -122,7 +122,6 @@ class Fiscal_sequence(models.Model):
         if not vals.get("journal_id"):
             raise Warning(_('Set a journal and a sequence'))
         return res
-    # TODO : Verificar que no exista en facturas esta secuencia
     def unlink(self):
         invoice = self.env["account.invoice"].search([('sequence_ids', '=', self.sequence_id.id)])
         if invoice:
