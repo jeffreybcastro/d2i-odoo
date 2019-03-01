@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <record model="ir.ui.view" id="pos_order_form_view_sequence_inh">
+        <field name="name">pos.order.form.view.inh</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form" />
+
+        <field name="arch" type="xml">
+            <field name= "name" position="before" >
+                <field name="pos_reference" string ="Factura Número : "></field>
+            </field>
+        </field>
+
+
+    </record>
+
+    <record model="ir.ui.view" id="pos_order_tree_view_sequence_inh">
+        <field name="name">pos.order.tree.view.inh</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree" />
+
+
+        <field name="arch" type="xml">
+            <field name= "pos_reference" position="replace" >
+                <field name="pos_reference" string ="Factura Número"></field>
+            </field>
+        </field> 
+    </record>
+
+        <record model="ir.ui.view" id="pos_order_tree_fix_view_sequence_inh">
+        <field name="name">pos.order.tree.view.inh_fix</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree" />
+
+
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+        </field> 
+    </record>
+
+
+</data>
+</odoo>
+
+
