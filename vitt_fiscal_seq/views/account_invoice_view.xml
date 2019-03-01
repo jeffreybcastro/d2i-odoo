@@ -10,6 +10,10 @@
             <xpath expr="//form/sheet/h1/div/field[@name='sequence_number_next']" position="after">
                 <field name="internal_number" attrs="{'invisible': [('state','not in',('cancel'))]}"/>
             </xpath>
+
+<!--             <field name="number" position="before">
+                <label string="Factura Numero :" attrs="{'invisible': [('state', '=', 'draft')]}"/><br/>
+            </field> -->
             <field name="payment_term_id" position="after">
 		 <field name="fiscal_control" invisible="1"/>
                 <field name="sequence_ids" placeholder="Select a sequence..."  attrs="{'invisible': [('fiscal_control','=',False)], 
@@ -46,6 +50,11 @@
             </filter>
         </field>
     </record>
+
+
+
+
+
 </data>
 </odoo>
 

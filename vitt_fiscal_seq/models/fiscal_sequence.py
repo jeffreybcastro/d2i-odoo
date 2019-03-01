@@ -16,16 +16,56 @@ class Authorization(models.Model):
     expiration_date = fields.Date('Expiration Date', required=True)
     start_date = fields.Date('Start Date', help='start date', required=True)
     company_id = fields.Many2one('res.company', "Company", required=True)
-    code_type = fields.Many2one('vitt_fiscal_seq.authorization_code_type', string='Tax regime code type', help='tax regime type code', required=True)
+    # code_type = fields.Many2one('vitt_fiscal_seq.authorization_code_type', string='Tax regime code type', help='tax regime type code')
     active = fields.Boolean("Actived", default=True)
     fiscal_sequence_regime_ids = fields.One2many('vitt_fiscal_seq.fiscal_sequence_regime', 'authorization_code_id')
+    _from_ = fields.Integer(compute='get_from_to')
+    _to_ = fields.Integer(compute='get_from_to')
+    code_type = fields.Selection(selection='get_regimen', string='Código de Secuencia',required=True)
 
     @api.model
     def create(self, vals):
         res = super(Authorization, self).create(vals)
         if vals.get("start_date") > vals.get("expiration_date"):
             raise Warning(_('Start date is greater than than expiration date'))
+        _obj = self.env["vitt_fiscal_seq.authorization_code"].search([['active', '=', True] ,['code_type', '=', vals.get("code_type")]])
+        # _obj2 = self.env["vitt_fiscal_seq.authorization_code_type"].search([['id', '=', vals.get("code_type")]])
+        array  = []
+        if vals.get("start_date") > vals.get("expiration_date"):
+            raise Warning(_('Start date is greater than than expiration date'))   
+        code_type_name = vals.get("code_type")
+        if len(_obj) > 1:
+            raise Warning(_('No puedes tener 2 regimenes activos iguales %s') % code_type_name )
+        
+        len_cai = ''
+        len_cai = vals.get("name")
+        if len(len_cai) <=  36 :
+            raise Warning(_('Formato del CAI es invalido!'))
+        elif len_cai.isupper() == False:
+            raise Warning(_('Formato del CAI debe ser en mayuscula!')) 
         return res
+
+    @api.multi
+    def get_regimen(self):
+        dicc = { 
+        '000-001-01-' : '01 Facturas',
+        '000-001-06-' : '06 Notas de Crédito ',
+        '000-001-05-' : '05 Retención',
+        '000-001-07-' : '07 Notas de Débito',
+        '000-001-08-' : '08 Guía de de Remisión',
+        'Pos' : '09 POS'
+        }
+        lst = []
+        for x in dicc.items():
+            lst.append(x)
+        return lst
+
+    @api.one
+    def get_from_to(self):
+        for rec in self:
+            for obj in rec.fiscal_sequence_regime_ids:
+                self._from_ = obj._from
+                self._to_ = obj._to
 
     @api.multi
     def get_action_journal_settings(self):
@@ -110,11 +150,11 @@ class Fiscal_sequence(models.Model):
         return super(Fiscal_sequence, self).unlink()
 
 
-class Code_authorization_type(models.Model):
-    _name = "vitt_fiscal_seq.authorization_code_type"
-    _description = 'Authorization Code type'
+# class Code_authorization_type(models.Model):
+#     _name = "vitt_fiscal_seq.authorization_code_type"
+#     _description = 'Authorization Code type'
 
-    name = fields.Char('Name', help='tax regime type', required=True)
-    description = fields.Char('Description', help='tax regime type description', required=True)
+#     name = fields.Char('Name', help='tax regime type')
+#     description = fields.Char('Description', help='tax regime type description')
 
-    _sql_constraints = [('value_code_authorization_type_uniq', 'unique (name)', 'Only one authorization type is permitted!')]
+#     _sql_constraints = [('value_code_authorization_type_uniq', 'unique (name)', 'Only one authorization type is permitted!')]

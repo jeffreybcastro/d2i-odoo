@@ -25,32 +25,20 @@
         </field>
     </record>
 
-    <record id="vitt_authorization_code_type_form_view" model="ir.ui.view">
-        <field name="name">vitt.authorization.code.type</field>
-        <field name="model">vitt_fiscal_seq.authorization_code_type</field> 
-        <field name="arch" type="xml">
-            <form string="Tax regime type">
-                <sheet>
-                    <group colspan="4">
-                        <group cols="2">
-                            <field name="name"/>
-                        </group>
-                        <group cols="2">
-                            <field name="description"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+
+
 
     <record id="vitt_code_authorization_tree_view" model="ir.ui.view">
         <field name="name">vitt_code_authorization_tree_view</field>
         <field name="model">vitt_fiscal_seq.authorization_code</field>   
         <field name="arch" type="xml">
             <tree decoration-info="active == False" decoration-muted="active == True">
-                <field name="name"/>
+                <field name="name" />
                 <field name="code_type"/>
+                <field name="start_date"/>
+                <field name="expiration_date"/>
+                <field name="_from_"/>
+                <field name="_to_"/>
                 <field name="company_id"/>
                 <field name="active"/>
             </tree>
@@ -72,8 +60,9 @@
 
                     <group colspan="4">
                         <group cols="2">
-                            <field name="name"/>
-                            <field name="code_type"/>
+                            <field name="name" placeholder="Ejemplo : ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-AB"/>
+                            <field name="code_type"  string = "Código de Secuencia" options="{'no_create_edit': True}" />
+                            <!-- <field name="doc_type2"/> -->
                             <field name="company_id" placeholder="Select a company..."/>
                         </group>
                         <group cols="2">
@@ -93,14 +82,14 @@
 
                                 </group>
                             </group>
-                            <field name="fiscal_sequence_regime_ids" context="{'default_is_fiscal_sequence':1, 'default_authorization_code_id': id}">
+                            <field name="fiscal_sequence_regime_ids" >
                                 <tree editable="top">
                                     <field name="authorization_code_id" invisible="1"/>
-                                    <field name="sequence_id"  domain="[('is_fiscal_sequence', '=', True)]" context="{'default_is_fiscal_sequence':1}" readonly="1"/>
+                                    <field name="sequence_id" readonly="1"/>
                                     <field name="_from"/>
                                     <field name="_to"/>
                                     <field name="user_ids"  widget="many2many_tags"/>
-                                    <field name="journal_id" domain="[('type', 'in', ['sale','purchase','general'])]" readonly="1"/> 
+                                    <field name="journal_id" readonly="1"/> 
                                     <field name="actived"/>           
                                 </tree>
 
@@ -117,7 +106,33 @@
         <field name="res_model">vitt_fiscal_seq.authorization_code</field>
         <field name="view_mode">tree,form</field>
     </record>
+
+
+
     <menuitem id="tax_configuration" parent="account.menu_finance_configuration" name="Fiscal Regime"  sequence="10" />
+
     <menuitem id="fiscal_sequence" parent="tax_configuration" name="Fiscal Numbers"  sequence="11" action="vitt_fiscal_seq_action_id"/>
+
+<!-- 
+    <record id="vitt_authorization_code_type_tree_view_1" model="ir.ui.view">
+        <field name="name">vitt_authorization_code_type </field>
+        <field name="model">vitt_fiscal_seq.authorization_code_type</field> 
+        <field name="arch" type="xml">
+            <tree string="Tipo de Regimen" editable= "bottom">
+                <field name="name" />
+                <field name="description" string = "Código de Secuencia"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="vitt_authorization_code_type_tree_view">
+        <field name="name">Tipo de Regimen</field>
+        <field name="res_model">vitt_fiscal_seq.authorization_code_type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <menuitem id="tipo_regimen" parent="tax_configuration" name="Tipo de Regimen"  sequence="16" action="vitt_authorization_code_type_tree_view"/> -->
+
+
 </data>
 </odoo>
