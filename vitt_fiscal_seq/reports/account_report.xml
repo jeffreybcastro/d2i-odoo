@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_account_invoice_inherit" inherit_id="account.report_invoice_document">
+            <xpath expr="//h2" position="after">
+
+            	<!-- We add the parameters to the Qweb report SAR  -->>
+                    <span> CAI :  </span> <span t-field="o.cai_shot" ></span><br/>
+                    <span> Authorized Range : </span> <span t-field="o.min_number_shot" ></span> To  <span t-field="o.max_number_shot" ></span><br/>
+                	<span> Expiration Date :  </span> <span t-field="o.cai_expires_shot" ></span>
+            </xpath>
+            <xpath expr="//h2" position="replace">
+            	<!-- Change of titles in report Qweb invoicing. -->
+                <h2>
+                	   <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Facturas</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                        <span t-if="o.type == 'out_refund'">Notas de Credito</span>
+                        <span t-if="o.type == 'in_refund'">Vendor Credit Note</span>
+                        <span t-if="o.type == 'in_invoice'">Vendor Bill</span>
+                        <span t-field="o.number"/>
+                </h2>
+            </xpath>
+            <xpath expr="//div/table" position="after">
+            	<!--Numbers to letters -->
+                        <span>Son :</span> <span t-field="o.amount_total_text"/>
+            </xpath>
+
+        </template>
+    </data>
+</odoo> 

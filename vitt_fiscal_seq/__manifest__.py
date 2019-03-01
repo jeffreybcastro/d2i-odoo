@@ -25,6 +25,7 @@
         "views/config_authorization_code_view.xml",
         "views/ir_sequence_view.xml",
         "views/account_invoice_view.xml",
+        "reports/account_report.xml",
     ],
     'demo': [
     ],
