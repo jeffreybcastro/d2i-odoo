@@ -22,9 +22,9 @@
 ##############################################################################
 {
     'name': 'Company Logo In POS Receipt',
-    'summary': """Add Company Logo , Info & Customer name to POS Ticket""",
+    'summary': """POS Ticket""",
     'version': '10.0.1.1',
-    'description': """Add Company Logo , Info & Customer name to POS Ticket""",
+    'description': """POS Ticket""",
     'author': 'Darwin Calix',
     'company': 'D2i Solutions',
     'website': 'www.D2i-Solutions.com',
