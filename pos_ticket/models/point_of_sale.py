@@ -13,3 +13,6 @@ class PosOrder(models.Model):
         #     pos.write({'name': new_name})
         res = super(PosOrder, self).create(values)
         return res
+
+
+

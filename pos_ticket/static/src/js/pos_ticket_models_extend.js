@@ -41,7 +41,7 @@ odoo.define('pos_ticket.models_extend', function (require){
         // export_for_printing: function() 
         // {
         //     var json = _super_order.export_for_printing.apply(this,arguments);
-        //     json.subtotal_in_words = this.get_subtotal_in_words();
+        //     json.get_number_invoice = this.get_subtotal_in_words();
         //     json.get_min_value = this.get_min_value();
         //     json.get_max_value = this.get_max_value();
         //     return json;
