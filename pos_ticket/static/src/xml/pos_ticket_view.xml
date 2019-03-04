@@ -191,20 +191,6 @@
     </t>
 </templates>
 
-<templates id="template" xml:space="preserve">
-
-    <t t-extend="XmlReceipt">
-        <t t-jquery='.total' t-operation='after'>  
-            <barcode encoding="CODE128"><t t-esc="o.id"/></barcode> 
-        </t>
-    </t>
-
-    <t t-extend="BillReceipt">
-        <t t-jquery='.cashier' t-operation='after'> 
-            <barcode encoding="CODE128"><t t-esc="o.ean_128"/></barcode>
-        </t>
-    </t>
-</templates>
 
 
 
