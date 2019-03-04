@@ -21,14 +21,14 @@ class PosOrder(models.Model):
 
     @api.multi
     def action_date_assign_pos(self):
-        res = super(PosOrder, self).action_date_assign_pos()
+        # res = super(PosOrder, self).action_date_assign_pos()
         today = datetime.now().date()
         if self.sequence_ids_pos:
             if today > self.sequence_ids_pos.expiration_date:
                 raise Warning(_('The Expiration Date for this fiscal sequence is %s ') % (self.sequence_ids_pos.expiration_date))
             if self.sequence_ids_pos.vitt_number_next_actual > self.sequence_ids_pos.max_value:
                 raise Warning(_('The range of sequence numbers is finished'))
-        return res
+        return True
 
     # @api.multi
     # def assign_perms(self):
