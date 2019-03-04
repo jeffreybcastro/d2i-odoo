@@ -192,9 +192,9 @@
 </templates>
 
 
-<templates id="XmlReceipt_inherit_id"  xml:space="preserve">
+<templates id="XmlReceipt"  xml:space="preserve">
     <t t-extend="XmlReceipt">
-        <t t-jquery='.pos-sale-ticket' t-operation='replace'>
+        <t t-operation='replace'>
         <!-- <t t-jquery='br:nth-of-type(4)' t-operation='replace'> -->
 
             <div class="pos-sale-ticket">
