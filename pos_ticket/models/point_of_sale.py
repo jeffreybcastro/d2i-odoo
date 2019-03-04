@@ -16,3 +16,6 @@ class PosOrder(models.Model):
 
 
 
+
+
+
