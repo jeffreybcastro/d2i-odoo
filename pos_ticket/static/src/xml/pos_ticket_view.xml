@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates id="point_of_sale.template" xml:space="preserve">
+<templates id="template" xml:space="preserve">
     <t t-extend="PosTicket">
         <t t-jquery='.pos-sale-ticket' t-operation='replace'>
         <!-- <t t-jquery='br:nth-of-type(4)' t-operation='replace'> -->

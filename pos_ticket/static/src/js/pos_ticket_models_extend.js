@@ -112,6 +112,7 @@ odoo.define('pos_ticket.models_extend', function (require){
             // this.pos.click_next();
             // this.pos.set_next_number.destroy();
         },
+        
 
 
     get_letras : function ()
