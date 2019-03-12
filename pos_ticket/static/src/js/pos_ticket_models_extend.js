@@ -226,10 +226,10 @@ models.Orderline = models.Orderline.extend
                 return s;
             }
             json.get_number_invoice = this.pos.sequences.prefix+sequense(this.pos.sequences.number_next_actual);
-            json.get_min_value =  self.pos.sequences.vitt_min_value;
-            json.get_max_value =  self.pos.sequences.vitt_max_value;
-            json.get_expiration_date = self.pos.sequences.expiration_date;
-            json.get_cai = self.pos.fiscal_code.authorization_code_id[1];
+            json.get_min_value = this.get_min_value();
+            json.get_max_value = this.get_max_value();
+            json.get_expiration_date = this.get_expiration_date();
+            json.get_cai = this.get_cai();
             json.get_letras = this.get_letras();
             json.get_vat =  this.get_client() ? this.get_client().vat : ' ';
             json.get_date_new = this.get_date_new();
@@ -244,13 +244,13 @@ models.Orderline = models.Orderline.extend
 
         },
 
-        // // Agregando los parametros del SAR 
-        // get_expiration_date : function (sequences) {
-        //     // Fecha de Expiracion...
-        //     self = this;
-        //     var expiration_date =  self.pos.sequences.expiration_date;
-        //     return expiration_date;
-        // },
+        // Agregando los parametros del SAR 
+        get_expiration_date : function (sequences) {
+            // Fecha de Expiracion...
+            self = this;
+            var expiration_date =  self.pos.sequences.expiration_date;
+            return expiration_date;
+        },
         get_date_new : function (sequences) {
             // Fecha de Expiracion...
             self = this;
@@ -258,39 +258,75 @@ models.Orderline = models.Orderline.extend
             return date.toLocaleString();
         },
 
-        // get_id_sequence : function (sequences) {
-        //     // body...
-        //     self = this;
-        //     var id_sequence =  self.pos.sequences.id[1];
-        //     return id_sequence;
-        // },
+        get_id_sequence : function (sequences) {
+            // body...
+            self = this;
+            var id_sequence =  self.pos.sequences.id[1];
+            return id_sequence;
+        },
 
-        // get_min_value: function(sequences) {
-        //     // El rango Autorizado Minimo que las facturas pueden ser impresas.
-        //     self = this;
-        //     var min_value =  self.pos.sequences.vitt_min_value;
-        //     return min_value;
-        // },
+        get_min_value: function(sequences) {
+            // El rango Autorizado Minimo que las facturas pueden ser impresas.
+            self = this;
+            var min_value =  self.pos.sequences.vitt_min_value;
+            return min_value;
+        },
 
-        // get_max_value: function(sequences) {
-        //     // El rango Autorizado Maximo que las facturas pueden ser impresas.
-        //     self = this;
-        //     var max_value =  self.pos.sequences.vitt_max_value;
-        //     return max_value;
-        // },
+        get_max_value: function(sequences) {
+            // El rango Autorizado Maximo que las facturas pueden ser impresas.
+            self = this;
+            var max_value =  self.pos.sequences.vitt_max_value;
+            return max_value;
+        },
 
-        // get_cai: function(fiscal_code) {
-        //     // CAI autorizado para la autoimpresion
-        //     self = this;
-        //     var cai =  self.pos.fiscal_code.authorization_code_id[1];
-        //     return cai;
-        // },
+        get_cai: function(fiscal_code) {
+            // CAI autorizado para la autoimpresion
+            self = this;
+            var cai =  self.pos.fiscal_code.authorization_code_id[1];
+            return cai;
+        },
         get_addre :function (companies) {
             // La direccion de la Empresa
             self = this;
             get_addre =  self.pos.companies.street;
             return get_addre;
         },
+
+
+        // get_number_invoice: function(sequences){
+        //     // Generamos la secuencia que solicita el SAR 000-000-000-00000000 atravez de una funcion pasandole como parametro
+        //     // el Numero siguiente que se creo en la secuencia del POS.
+        // get_number_invoice : function sequense(number_next_actual){ 
+        //         var s = ""+ number_next_actual;
+        //         while (s.length < 8)
+        //         {
+        //             s = "0" + s;
+        //         }
+        //         return s;
+        // },
+
+        // get_number_invoice_: function(sequences){
+        //     // Generamos la secuencia que solicita el SAR 000-000-000-00000000 atravez de una funcion pasandole como parametro
+        //     // el Numero siguiente que se creo en la secuencia del POS.
+        //     self = this;
+        //     var prefix_ = self.pos.sequences.prefix;
+
+        //     function sequense(num)
+        //         { 
+        //             var s = ""+ num;
+        //             while (s.length < 8)
+        //             {
+        //                 s = "0" + s;
+        //             }
+        //             return s;
+        //         }
+        //     var num =  self.pos.sequences.number_next_actual++;
+
+        //     return prefix_ + sequense(num);
+        //     // Funciones que trae el POS predeterminado
+        //     // this.pos.click_next();
+        //     // this.pos.set_next_number.destroy();
+        // },
 
     get_letras : function ()
     {      
