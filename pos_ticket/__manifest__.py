@@ -22,25 +22,23 @@
 ##############################################################################
 {
     'name': 'Company Logo In POS Receipt',
-    'summary': """POS Ticket""",
+    'summary': """Add Company Logo , Info & Customer name to POS Ticket""",
     'version': '10.0.1.1',
-    'description': """POS Ticket""",
+    'description': """Add Company Logo , Info & Customer name to POS Ticket""",
     'author': 'Darwin Calix',
     'company': 'D2i Solutions',
     'website': 'www.D2i-Solutions.com',
     'category': 'Point Of Sale',
-    'depends': ['base','point_of_sale'],
+    'depends': ['base', 'point_of_sale'],
     'license': 'AGPL-3',
     'data': [
-    'static/src/xml/custom_pos_view.xml',
-    'views/pos_view_update.xml'
+    'static/src/xml/custom_pos_view.xml'
     ],
-    'qweb': ['static/src/xml/pos_ticket_view.xml'],
-    'images': [],
+    'qweb': ['static/src/xml/pos_ticket_view.xml',
+    'static/src/xml/pos_extendent.xml'],
+    'images': ['static/description/banner.jpg'],
     'demo': [],
     'installable': True,
-    'application': True,
     'auto_install': False,
-    'active' : True,
 
 }

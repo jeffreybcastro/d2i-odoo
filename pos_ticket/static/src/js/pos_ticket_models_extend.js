@@ -2,58 +2,260 @@ odoo.define('pos_ticket.models_extend', function (require){
     "use strict";
     var models = require('point_of_sale.models');
     var _super_order = models.Order.prototype;
+    var _super_order_line = models.Orderline.prototype;
+    // var _super_order_receipt = models.ScreenWidget.prototype;
+    var core = require('web.core');
+    var gui = require('point_of_sale.gui');
+    var _t = core._t;
+    var QWeb = core.qweb;
+    var utils = require('web.utils');
+    var round_di = utils.round_decimals;
+    var screens = require('point_of_sale.screens');
+    var super_screens =  screens.PaymentScreenWidget.prototype;
+
    // Agregamos o cargamos los modulos necesarios en el POS
     models.load_models([
                                 // Carga el modulo de sequencias que trae predeterminado Odoo
                                 {
                                     model: 'ir.sequence', 
-                                    fields: 
-                                    [
-                                        'code',
-                                        'number_next_actual',
-                                        'vitt_min_value',
-                                        'vitt_max_value',
-                                        'fiscal_sequence_regime_ids',
-                                        'expiration_date',
-                                        'active',   
-                                        'prefix',
-                                        'id'
-                                    ], 
+                                    fields: ['id','prefix','name','number_next_actual',
+                                    'padding','code','number_next_actual','vitt_number_next_actual',
+                                    'vitt_min_value','vitt_max_value','fiscal_sequence_regime_ids[-1]','sequence_id','expiration_date','active'],
                                     domain: [['code','=','pos_order'],['active','=',true]], 
                                     loaded: function(self,sequences)
-                                    {self.sequences = sequences[0];},
+                                    {self.sequences = sequences.pop();},
                                 },
-                                //Carga el modulo del SAR
+                                // Carga el modulo del SAR
                                 {
                                     model: 'vitt_fiscal_seq.fiscal_sequence_regime', 
-                                    fields: ['authorization_code_id','id','actived','sequence_id'],
+                                    fields: ['authorization_code_id','id','actived','_to'],
                                     // domain: [['id','=',this.get_id_sequence()]],
-                                    domain: function(self){ return [['actived','=', true ]]; },
+                                    domain: function(self){ return[ [ 'actived','=', true ]]; },
                                     loaded: function(self, fiscal_codes)
-                                    {self.fiscal_code = fiscal_codes[0];},
+                                    {self.fiscal_code = fiscal_codes.pop();},
                                 },
                         ]);
 
+
+
     // Order Model hacemos una herencia o extendemos el codigo donde se encuentra la funcion (export_for_printing) que impreme el POS el ticket 
-    models.Order = models.Order.extend
-    ({
-
-        // export_for_printing: function() 
-        // {
-        //     var json = _super_order.export_for_printing.apply(this,arguments);
-        //     json.get_number_invoice = this.get_subtotal_in_words();
-        //     json.get_min_value = this.get_min_value();
-        //     json.get_max_value = this.get_max_value();
-        //     return json;
-
-        // },
-
-        // Agregando los parametros del SAR 
-        get_expiration_date : function (sequences) {
+screens.PaymentScreenWidget.include({
+        get_date_new : function () {
             // Fecha de Expiracion...
             self = this;
-            var expiration_date =  self.pos.sequences.expiration_date;
-            return expiration_date;
+            let today = new Date().toISOString().slice(0, 10)
+            return today
+
+        },
+    order_is_valid : function(force_validation){
+        // var json = super_screens.export_for_printing.apply(this,arguments);
+        var self = this;
+        var order = this.pos.get_order();
+        let _expiracion_fecha = self.pos.sequences.expiration_date;
+        let _today = self.get_date_new();
+        console.log(self.pos.sequences);
+        console.log(self.pos.fiscal_code);
+
+
+        if (_expiracion_fecha < _today ) {
+                this.gui.show_popup('error',{
+                    'title': _t('Fecha de expiracion del CAI'),
+                    'body':  _t('El Fecha de expiracion del CAI ya finalizo'),
+                });
+                return false;
+            }
+
+        else if (parseInt ( self.pos.sequences.number_next_actual )  > parseInt ( self.pos.fiscal_code._to) ) {
+                this.gui.show_popup('error',{
+                    'title': _t('Fiscal secuencia del CAI'),
+                    'body':  _t('La secuencia fiscal a finalizado'),
+                });
+                return false;
+
+            }
+        return true;
+    },
+
+
+});
+
+
+screens.PaymentScreenWidget = screens.PaymentScreenWidget.extend({
+
+ order_is_valid : function(force_validation){
+    // var json = super_screens.export_for_printing.apply(this,arguments);
+    var self = this;
+    var order = this.pos.get_order();
+    if (order.get_orderlines().length === 0) {
+            this.gui.show_popup('error',{
+                'title': _t('Empty Order'),
+                'body':  _t('Estoy validando.'),
+            });
+            return false;
+        }
+},
+
+
+});
+
+
+
+models.Orderline = models.Orderline.extend
+    ({  
+    export_for_printing: function(){
+
+        self = this;
+        var json = _super_order_line.export_for_printing.apply(this,arguments);
+        json.get_tax15 = self.get_tax15();
+        json.get_tax18 = self.get_tax18();
+        json.get_exento = self.get_exento();
+        json.get_total_15 = self.get_total_15() ? this.get_total_15() : 0.00;
+        json.get_total_18 = self.get_total_18() ? this.get_total_18() : 0.00; 
+        json.get_total_excento = self.get_total_excento() ? this.get_total_excento() : 0.00;
+        return json;
+    },
+
+
+    get_total_15: function(){
+        // var total_15 =+ self.get_tax15();
+        self = this;
+        var  product =  self.get_product();
+        var total15 = 0.00;
+
+        for (var producto of product.taxes_id) {
+            if (producto == 2) {
+               total15 = self.get_base_price();
+
+            };
+        };
+        if (total15 != 0.00) {
+        console.log(total15);
+        return total15;
+        };
+    },
+        get_total_18: function(){
+        // var total_15 =+ self.get_tax15();
+        self = this;
+        var  product =  self.get_product();
+        var total18 = 0.00;
+        for (var producto of product.taxes_id) {
+            if (producto == 3) {
+               total18 = self.get_base_price();
+              
+            }
+        };
+        // console.log(total1);
+        if (total18 != 0.00) {
+        console.log(total18);
+        return total18;
+        };
+
+    },
+
+    get_total_excento: function(){
+        // var total_15 =+ self.get_tax15();
+        self = this;
+        var  product =  self.get_product();
+        var exento = 0.00;
+        for (var producto of product.taxes_id) {
+            if (producto == 4) {
+               exento = self.get_base_price();
+               
+            }
+        };
+        // console.log(product.taxes_id)
+        if (exento != 0.00) {
+        console.log(exento);
+        return exento;
+        };
+    },
+
+    get_tax15: function(){
+        self = this;
+        var  product =  self.get_product();
+        var isv15 = 0.00;
+        for (var producto of product.taxes_id) {
+            if (producto == 2) {
+               isv15 = self.get_base_price() * 0.15;
+            };
+        };
+        // console.log(isv15);
+        return isv15;
+        },
+
+    get_tax18: function(){
+        self = this;
+        var  product =  self.get_product();
+        var isv18 = 0.00;
+        for (var producto of product.taxes_id) {
+            if (producto == 3) {
+               isv18 = self.get_base_price() * 0.18;
+            };
+        };
+        // console.log(isv18);
+        return isv18;
+        },
+    get_exento: function(){
+        self = this;
+        var  product =  self.get_product();
+        var exento = 0.00;
+        for (var producto of product.taxes_id) {
+            if (!producto) {
+               exento = self.get_base_price();
+            };
+        };
+        // console.log(exento);
+        return exento;
+        },
+    
+    });
+
+
+    models.Order = models.Order.extend
+    ({
+        export_for_printing: function() 
+        {
+            var json = _super_order.export_for_printing.apply(this,arguments);
+            
+            function sequense(number_next_actual){ 
+                var s = ""+ number_next_actual;
+                while (s.length < 8)
+                {
+                    s = "0" + s;
+                }
+                return s;
+            }
+            json.get_number_invoice = this.pos.sequences.prefix+sequense(this.pos.sequences.number_next_actual);
+            json.get_min_value =  self.pos.sequences.vitt_min_value;
+            json.get_max_value =  self.pos.sequences.vitt_max_value;
+            json.get_expiration_date = self.pos.sequences.expiration_date;
+            json.get_cai = self.pos.fiscal_code.authorization_code_id[1];
+            json.get_letras = this.get_letras();
+            json.get_vat =  this.get_client() ? this.get_client().vat : ' ';
+            json.get_date_new = this.get_date_new();
+            // json.get_date_new = this.orderline.discount;
+            json.get_disc_total = this.get_total_discount();
+            // json.get_taxes_new2 = this.get_tax();
+            // json.get_orderlines_new = this.get_product().taxes_id;
+
+
+            return json;
+
+
+        },
+
+        // // Agregando los parametros del SAR 
+        // get_expiration_date : function (sequences) {
+        //     // Fecha de Expiracion...
+        //     self = this;
+        //     var expiration_date =  self.pos.sequences.expiration_date;
+        //     return expiration_date;
+        // },
+        get_date_new : function (sequences) {
+            // Fecha de Expiracion...
+            self = this;
+            var date = new Date();
+            return date.toLocaleString();
         },
 
         // get_id_sequence : function (sequences) {
@@ -63,57 +265,32 @@ odoo.define('pos_ticket.models_extend', function (require){
         //     return id_sequence;
         // },
 
-        get_min_value: function(sequences) {
-            // El rango Autorizado Minimo que las facturas pueden ser impresas.
-            self = this;
-            var min_value =  self.pos.sequences.vitt_min_value;
-            return min_value;
-        },
-
-        get_max_value: function(sequences) {
-            // El rango Autorizado Maximo que las facturas pueden ser impresas.
-            self = this;
-            var max_value =  self.pos.sequences.vitt_max_value;
-            return max_value;
-        },
-
-        get_cai: function(fiscal_code) {
-            // CAI autorizado para la autoimpresion
-            self = this;
-            var cai =  self.pos.fiscal_code.authorization_code_id[1];
-            return cai;
-        },
-        // get_addre :function (companies) {
-        //     // La direccion de la Empresa
+        // get_min_value: function(sequences) {
+        //     // El rango Autorizado Minimo que las facturas pueden ser impresas.
         //     self = this;
-        //     get_addre =  self.pos.companies.street;
-        //     return get_addre;
+        //     var min_value =  self.pos.sequences.vitt_min_value;
+        //     return min_value;
         // },
 
-        get_number_invoice: function(sequences){
-            // Generamos la secuencia que solicita el SAR 000-000-000-00000000 atravez de una funcion pasandole como parametro
-            // el Numero siguiente que se creo en la secuencia del POS.
+        // get_max_value: function(sequences) {
+        //     // El rango Autorizado Maximo que las facturas pueden ser impresas.
+        //     self = this;
+        //     var max_value =  self.pos.sequences.vitt_max_value;
+        //     return max_value;
+        // },
+
+        // get_cai: function(fiscal_code) {
+        //     // CAI autorizado para la autoimpresion
+        //     self = this;
+        //     var cai =  self.pos.fiscal_code.authorization_code_id[1];
+        //     return cai;
+        // },
+        get_addre :function (companies) {
+            // La direccion de la Empresa
             self = this;
-            var prefix_ = self.pos.sequences.prefix;
-
-            function sequense(num)
-                { 
-                    var s = ""+ num;
-                    while (s.length < 8)
-                    {
-                        s = "0" + s;
-                    }
-                    return s;
-                }
-            var num =  self.pos.sequences.number_next_actual++;
-
-            return prefix_ + sequense(num);
-            // Funciones que trae el POS predeterminado
-            // this.pos.click_next();
-            // this.pos.set_next_number.destroy();
+            get_addre =  self.pos.companies.street;
+            return get_addre;
         },
-        
-
 
     get_letras : function ()
     {      
@@ -280,18 +457,11 @@ odoo.define('pos_ticket.models_extend', function (require){
 
 })();
         var total = this.get_total_with_tax();
-        // var centavos= parseInt((Math.round(total-total,2))*100)
-        // var converted = "";
-        // var centavos = total;
-        // if(centavos)>0{
-        //     converted += "con " + centavos + "/100"
-        // };
-
-
         return numeroALetras(total);
 
         },
     
     });
+
 });
 
