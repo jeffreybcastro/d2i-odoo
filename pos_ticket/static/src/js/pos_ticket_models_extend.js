@@ -20,19 +20,30 @@ odoo.define('pos_ticket.models_extend', function (require){
                                     model: 'ir.sequence', 
                                     fields: ['id','prefix','name','number_next_actual',
                                     'padding','code','number_next_actual','vitt_number_next_actual',
-                                    'vitt_min_value','vitt_max_value','fiscal_sequence_regime_ids[-1]','sequence_id','expiration_date','active'],
-                                    domain: [['code','=','pos_order'],['active','=',true]], 
+                                    'vitt_min_value','vitt_max_value','fiscal_sequence_regime_ids','sequence_id','expiration_date','active','company_id',
+                                    domain:function(self){ return [['code','=','pos_order'],['active','=',true],['company_id','=',self.company.id]]},  
                                     loaded: function(self,sequences)
                                     {self.sequences = sequences.pop();},
                                 },
                                 // Carga el modulo del SAR
                                 {
                                     model: 'vitt_fiscal_seq.fiscal_sequence_regime', 
-                                    fields: ['authorization_code_id','id','actived','_to'],
+                                    fields: ['authorization_code_id','id','actived','_to','company_id'],
                                     // domain: [['id','=',this.get_id_sequence()]],
-                                    domain: function(self){ return[ [ 'actived','=', true ]]; },
+                                    domain: function(self){ return[ [ 'actived','=', true ], ['company_id','=',self.user.company_id.id]; },
                                     loaded: function(self, fiscal_codes)
                                     {self.fiscal_code = fiscal_codes.pop();},
+                                },
+
+                                                                {
+                                {
+
+                                    model: 'vitt_fiscal_seq.authorization_code', 
+                                    fields: ['name','company_id'],
+                                    // domain: [['id','=',this.get_id_sequence()]],
+                                    domain: function(self){ return[ [ 'active','=', true ],['company_id','=',self.company.id]] },
+                                    loaded: function(self, codes)
+                                    {self.codes = codes.pop();},
                                 },
                         ]);
 
@@ -73,6 +84,8 @@ screens.PaymentScreenWidget.include({
                 return false;
 
             }
+            console.log(self.pos.sequence);
+            console.log(self.pos.fiscal_code);
         return true;
     },
 
@@ -225,7 +238,7 @@ models.Orderline = models.Orderline.extend
                 }
                 return s;
             }
-            json.get_number_invoice = this.pos.sequences.prefix+sequense(this.pos.sequences.number_next_actual);
+            json.get_number_invoice = this.pos.sequences.prefix+sequense(this.pos.sequences.number_next_actual++);
             json.get_min_value = this.get_min_value();
             json.get_max_value = this.get_max_value();
             json.get_expiration_date = this.get_expiration_date();
