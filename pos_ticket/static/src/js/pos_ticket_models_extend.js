@@ -1,8 +1,3 @@
-#Cada producto tiene que tener asignado un tipo de impuesto y si es exento deberia tener tambien asignado ese tipo de impuesto.
-#
-#
-#
-#
 odoo.define('pos_ticket.models_extend', function (require){
     "use strict";
     var models = require('point_of_sale.models');

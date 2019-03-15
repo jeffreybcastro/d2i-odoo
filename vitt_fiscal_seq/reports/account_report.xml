@@ -26,7 +26,7 @@
             	<!--Numbers to letters -->
                         <span>Son :</span> <span t-field="o.amount_total_text"/>
             </xpath>
-                    <xpath expr="//t[@t-foreach='o._get_tax_amount_by_group()']" position="replace">
+                    <xpath expr="//t[@t-foreach='o.amount_by_group']" position="replace">
                 <tr>
                     <td class="text-right">
                             <strong>Gravado 15%</strong>
