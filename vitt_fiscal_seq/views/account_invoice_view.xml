@@ -14,6 +14,22 @@
 <!--             <field name="number" position="before">
                 <label string="Factura Numero :" attrs="{'invisible': [('state', '=', 'draft')]}"/><br/>
             </field> -->
+            <field name="amount_untaxed" position="after">
+               <field name="total_15"/>
+               <field name="isv15"/>
+               <field name="total_18"/>
+               <field name="isv18"/>
+               <field name="exento"/>
+               <field name="total_exonerado"/>
+               <field name="_desc"/>
+            </field>
+
+            <field name="user_id" position="after">
+               <field name="oc_exenta"/>
+               <field name="reg_exenta"/>
+               <field name="reg_sag"/>
+            </field>
+            
             <field name="payment_term_id" position="after">
 		 <field name="fiscal_control" invisible="1"/>
                 <field name="sequence_ids" placeholder="Select a sequence..."  attrs="{'invisible': [('fiscal_control','=',False)], 

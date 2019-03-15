@@ -1,3 +1,8 @@
+#Cada producto tiene que tener asignado un tipo de impuesto y si es exento deberia tener tambien asignado ese tipo de impuesto.
+#
+#
+#
+#
 odoo.define('pos_ticket.models_extend', function (require){
     "use strict";
     var models = require('point_of_sale.models');
@@ -19,25 +24,23 @@ odoo.define('pos_ticket.models_extend', function (require){
                                 {
                                     model: 'ir.sequence', 
                                     fields: ['id','prefix','name','number_next_actual',
-                                    'padding','code','number_next_actual','vitt_number_next_actual',
-                                    'vitt_min_value','vitt_max_value','fiscal_sequence_regime_ids','sequence_id','expiration_date','active','company_id',
-                                    domain:function(self){ return [['code','=','pos_order'],['active','=',true],['company_id','=',self.company.id]]},  
+                                    'padding','code','vitt_number_next_actual',
+                                    'vitt_min_value','vitt_max_value','fiscal_sequence_regime_ids','sequence_id','expiration_date','active','company_id'],
+                                    domain:function(self){ return [['code','=','pos_order'],['active','=',true],['company_id','=',self.company.id]]}, 
                                     loaded: function(self,sequences)
                                     {self.sequences = sequences.pop();},
                                 },
                                 // Carga el modulo del SAR
                                 {
                                     model: 'vitt_fiscal_seq.fiscal_sequence_regime', 
-                                    fields: ['authorization_code_id','id','actived','_to','company_id'],
+                                    fields: ['authorization_code_id','id','actived','_to','fiscal_sequence_regime_ids','company_id'],
                                     // domain: [['id','=',this.get_id_sequence()]],
-                                    domain: function(self){ return[ [ 'actived','=', true ], ['company_id','=',self.user.company_id.id]; },
+                                    domain: function(self){ return[ [ 'actived','=', true ]] },
                                     loaded: function(self, fiscal_codes)
                                     {self.fiscal_code = fiscal_codes.pop();},
                                 },
 
-                                                                {
                                 {
-
                                     model: 'vitt_fiscal_seq.authorization_code', 
                                     fields: ['name','company_id'],
                                     // domain: [['id','=',this.get_id_sequence()]],
@@ -58,15 +61,19 @@ screens.PaymentScreenWidget.include({
             return today
 
         },
-    order_is_valid : function(force_validation){
-        // var json = super_screens.export_for_printing.apply(this,arguments);
+renderElement: function() {
         var self = this;
-        var order = this.pos.get_order();
-        let _expiracion_fecha = self.pos.sequences.expiration_date;
-        let _today = self.get_date_new();
-        console.log(self.pos.sequences);
-        console.log(self.pos.fiscal_code);
+        this._super();
+        this.$('.next').click(function(){
+            self.order_is_valid();
+        });
 
+
+    },
+    order_is_valid : function(force_validation){
+        var self = this;
+        var _expiracion_fecha = self.pos.sequences.expiration_date;
+        var _today = self.get_date_new();
 
         if (_expiracion_fecha < _today ) {
                 this.gui.show_popup('error',{
@@ -76,7 +83,7 @@ screens.PaymentScreenWidget.include({
                 return false;
             }
 
-        else if (parseInt ( self.pos.sequences.number_next_actual )  > parseInt ( self.pos.fiscal_code._to) ) {
+        if (parseInt ( self.pos.sequences.number_next_actual ) - 1   >= parseInt ( self.pos.fiscal_code._to) ) {
                 this.gui.show_popup('error',{
                     'title': _t('Fiscal secuencia del CAI'),
                     'body':  _t('La secuencia fiscal a finalizado'),
@@ -84,48 +91,25 @@ screens.PaymentScreenWidget.include({
                 return false;
 
             }
-            console.log(self.pos.sequence);
-            console.log(self.pos.fiscal_code);
         return true;
     },
 
 
 });
 
-
-screens.PaymentScreenWidget = screens.PaymentScreenWidget.extend({
-
- order_is_valid : function(force_validation){
-    // var json = super_screens.export_for_printing.apply(this,arguments);
-    var self = this;
-    var order = this.pos.get_order();
-    if (order.get_orderlines().length === 0) {
-            this.gui.show_popup('error',{
-                'title': _t('Empty Order'),
-                'body':  _t('Estoy validando.'),
-            });
-            return false;
-        }
-},
-
-
-});
-
-
-
 models.Orderline = models.Orderline.extend
     ({  
     export_for_printing: function(){
 
         self = this;
-        var json = _super_order_line.export_for_printing.apply(this,arguments);
-        json.get_tax15 = self.get_tax15();
-        json.get_tax18 = self.get_tax18();
-        json.get_exento = self.get_exento();
-        json.get_total_15 = self.get_total_15() ? this.get_total_15() : 0.00;
-        json.get_total_18 = self.get_total_18() ? this.get_total_18() : 0.00; 
-        json.get_total_excento = self.get_total_excento() ? this.get_total_excento() : 0.00;
-        return json;
+        var _json = _super_order_line.export_for_printing.apply(this,arguments);
+        _json.get_tax15 = this.get_tax15() ? this.get_tax15() : 0.00; ;
+        _json.get_tax18 = this.get_tax18() ? this.get_tax18() : 0.00; ;
+        _json.get_exento = this.get_exento() ? this.get_exento() : 0.00; ;
+        _json.get_total_15 = this.get_total_15() ? this.get_total_15() : 0.00; ;
+        _json.get_total_18 = this.get_total_18() ? this.get_total_18() : 0.00; 
+        _json.get_total_excento = this.get_total_excento()? this.get_total_excento() : 0.00 ;
+        return _json;
     },
 
 
@@ -142,7 +126,7 @@ models.Orderline = models.Orderline.extend
             };
         };
         if (total15 != 0.00) {
-        console.log(total15);
+        // console.log(total15);
         return total15;
         };
     },
@@ -178,7 +162,7 @@ models.Orderline = models.Orderline.extend
         };
         // console.log(product.taxes_id)
         if (exento != 0.00) {
-        console.log(exento);
+        // console.log(exento);
         return exento;
         };
     },
@@ -229,33 +213,18 @@ models.Orderline = models.Orderline.extend
         export_for_printing: function() 
         {
             var json = _super_order.export_for_printing.apply(this,arguments);
-            
-            function sequense(number_next_actual){ 
-                var s = ""+ number_next_actual;
-                while (s.length < 8)
-                {
-                    s = "0" + s;
-                }
-                return s;
-            }
-            json.get_number_invoice = this.pos.sequences.prefix+sequense(this.pos.sequences.number_next_actual++);
             json.get_min_value = this.get_min_value();
             json.get_max_value = this.get_max_value();
             json.get_expiration_date = this.get_expiration_date();
             json.get_cai = this.get_cai();
             json.get_letras = this.get_letras();
-            json.get_vat =  this.get_client() ? this.get_client().vat : ' ';
+            json.get_vat =  this.get_cliente();
             json.get_date_new = this.get_date_new();
-            // json.get_date_new = this.orderline.discount;
             json.get_disc_total = this.get_total_discount();
-            // json.get_taxes_new2 = this.get_tax();
-            // json.get_orderlines_new = this.get_product().taxes_id;
-
-
             return json;
-
-
         },
+
+
 
         // Agregando los parametros del SAR 
         get_expiration_date : function (sequences) {
@@ -298,48 +267,35 @@ models.Orderline = models.Orderline.extend
             var cai =  self.pos.fiscal_code.authorization_code_id[1];
             return cai;
         },
-        get_addre :function (companies) {
+        get_cliente :function (sequences) {
             // La direccion de la Empresa
             self = this;
-            get_addre =  self.pos.companies.street;
-            return get_addre;
+            var cliente = "";
+            if (self.get_client()) {
+                cliente =  self.get_client().vat
+            }
+
+            return cliente;
         },
-
-
-        // get_number_invoice: function(sequences){
         //     // Generamos la secuencia que solicita el SAR 000-000-000-00000000 atravez de una funcion pasandole como parametro
         //     // el Numero siguiente que se creo en la secuencia del POS.
-        // get_number_invoice : function sequense(number_next_actual){ 
-        //         var s = ""+ number_next_actual;
-        //         while (s.length < 8)
-        //         {
-        //             s = "0" + s;
-        //         }
-        //         return s;
-        // },
+        get_number_invoice_ : function(num){ 
+            function sequense(num)
+                { 
+                    var s = ""+ num;
+                    while (s.length < 8)
+                    {
+                        s = "0" + s;
+                    }
+                    return s;
+                }
+            var prefix_ = this.pos.sequences.prefix;
+            var num =  this.pos.sequences.number_next_actual++;
+            console.log(num)
 
-        // get_number_invoice_: function(sequences){
-        //     // Generamos la secuencia que solicita el SAR 000-000-000-00000000 atravez de una funcion pasandole como parametro
-        //     // el Numero siguiente que se creo en la secuencia del POS.
-        //     self = this;
-        //     var prefix_ = self.pos.sequences.prefix;
+            return prefix_ + sequense(num);
 
-        //     function sequense(num)
-        //         { 
-        //             var s = ""+ num;
-        //             while (s.length < 8)
-        //             {
-        //                 s = "0" + s;
-        //             }
-        //             return s;
-        //         }
-        //     var num =  self.pos.sequences.number_next_actual++;
-
-        //     return prefix_ + sequense(num);
-        //     // Funciones que trae el POS predeterminado
-        //     // this.pos.click_next();
-        //     // this.pos.set_next_number.destroy();
-        // },
+        },
 
     get_letras : function ()
     {      
@@ -513,4 +469,3 @@ models.Orderline = models.Orderline.extend
     });
 
 });
-

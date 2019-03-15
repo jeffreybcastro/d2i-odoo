@@ -21,6 +21,47 @@ class AccountInvoice(models.Model):
     cai_expires_shot= fields.Date("Expiration date", readonly=True)
     min_number_shot = fields.Char("Min Number", readonly=True)
     max_number_shot = fields.Char("Max Number", readonly=True)
+    isv15 = fields.Float("ISV 15%", readonly=True, compute='get_isv')
+    isv18 = fields.Float("ISV 18%", readonly=True, compute='get_isv')
+    exento = fields.Float("Exento", readonly=True, compute='get_isv')
+    total_15 = fields.Float("Total 15%", readonly=True, compute='get_isv')
+    total_18 = fields.Float("Total 18%", readonly=True, compute='get_isv')
+    _desc = fields.Float("Descuentos & Rebajas Otorgadas", readonly=True, compute='get_isv')
+    total_exonerado = fields.Float("Exonerado", readonly=True, compute='get_isv')
+    oc_exenta = fields.Char("OC Exento N#")
+    reg_exenta = fields.Char("Reg Exento N#")
+    reg_sag = fields.Char("Reg S.A.G N#")
+
+
+
+
+
+    @api.multi
+    def get_isv(self):
+        descuento = 0.00
+        for rec in self:
+            if not rec.oc_exenta and not rec.reg_exenta and not rec.reg_sag:
+                for line in rec.invoice_line_ids:
+                    if line.invoice_line_tax_ids.id == 2:
+                        self.isv15 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
+                        self.total_15 =+ line.price_subtotal
+                    elif line.invoice_line_tax_ids.id == 3:
+                        self.isv18 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
+                        self.total_18 =+ line.price_subtotal
+                    elif line.invoice_line_tax_ids.id == 4:
+                        self.exento =+ line.price_subtotal
+    
+                            
+
+                    if line.discount:
+                        self._desc = self._desc + (  (line.price_unit * line.quantity) - line.price_subtotal )
+            else:
+                self.total_exonerado = rec.amount_untaxed
+                for line in rec.invoice_line_ids:
+                    self._desc =+ (line.price_unit * line.quantity) - line.price_subtotal
+
+
+
 
     @api.multi
     def invoice_validate(self):
