@@ -51,7 +51,6 @@ class AccountInvoice(models.Model):
                     elif line.invoice_line_tax_ids.amount == 00.0000:
                         self.exento =+ line.price_subtotal
     
-                            
 
                     if line.discount:
                         self._desc = self._desc + (  (line.price_unit * line.quantity) - line.price_subtotal )
@@ -67,11 +66,11 @@ class AccountInvoice(models.Model):
                 self.cai_shot = regimen.authorization_code_id.name
 
         for validation in self.sequence_ids:
-            if validation.is_fiscal_sequence:  
+            if validation.type = 'out_invoice':  
                 self.cai_expires_shot = validation.expiration_date
                 self.min_number_shot = str(validation.vitt_min_value)
                 self.max_number_shot = str(validation.vitt_max_value)
-                
+
         return self.write({'state': 'open'})
 
     @api.multi
