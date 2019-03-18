@@ -45,10 +45,10 @@ class AccountInvoice(models.Model):
                     if line.invoice_line_tax_ids.amount ==  15.0000:
                         self.isv15 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
                         self.total_15 =+ line.price_subtotal
-                    elif line.invoice_line_tax_ids.id == 18.0000:
+                    elif line.invoice_line_tax_ids.amount == 18.0000:
                         self.isv18 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
                         self.total_18 =+ line.price_subtotal
-                    elif line.invoice_line_tax_ids.id == 00.0000:
+                    elif line.invoice_line_tax_ids.amount == 00.0000:
                         self.exento =+ line.price_subtotal
     
                             
