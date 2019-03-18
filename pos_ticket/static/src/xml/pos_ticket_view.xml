@@ -69,6 +69,7 @@
                  <!-- <t t-esc='receipt.pos_reference' /> -->
                 <div style="width: 100%; float: left; padding: 0px 0px;">
                     <!-- <strong>Factura : <t t-esc="order.get_number_invoice_()"/></strong><br/>     -->
+ <h2>Factura : <t t-esc="order.get_number_invoice_()"/></h2><br/>
                         <t t-if="order.get_client()">
                             Cliente: 
                             <t t-esc="order.get_client().name"/>
