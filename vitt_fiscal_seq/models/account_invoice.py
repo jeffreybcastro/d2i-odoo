@@ -63,14 +63,11 @@ class AccountInvoice(models.Model):
     def invoice_validate(self):
         for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
             if regimen.actived:
-                self.cai_shot = regimen.authorization_code_id.name
-
-        for validation in self.sequence_ids:
-            if validation.type = 'out_invoice':  
-                self.cai_expires_shot = validation.expiration_date
-                self.min_number_shot = str(validation.vitt_min_value)
-                self.max_number_shot = str(validation.vitt_max_value)
-
+                self.cai_shot = regimen.authorization_code_id.name 
+                self.cai_expires_shot = regimen.sequence_ids.expiration_date
+                self.min_number_shot = str(regimen.sequence_ids..vitt_min_value)
+                self.max_number_shot = str(regimen.sequence_ids..vitt_max_value)
+        
         return self.write({'state': 'open'})
 
     @api.multi
