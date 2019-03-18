@@ -65,8 +65,8 @@ class AccountInvoice(models.Model):
             if regimen.actived:
                 self.cai_shot = regimen.authorization_code_id.name 
                 self.cai_expires_shot = regimen.sequence_ids.expiration_date
-                self.min_number_shot = str(regimen.sequence_ids..vitt_min_value)
-                self.max_number_shot = str(regimen.sequence_ids..vitt_max_value)
+                self.min_number_shot = str(regimen.sequence_ids.vitt_min_value)
+                self.max_number_shot = str(regimen.sequence_ids.vitt_max_value)
         
         return self.write({'state': 'open'})
 
