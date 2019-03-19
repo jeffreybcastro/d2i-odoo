@@ -65,11 +65,11 @@ class AccountInvoice(models.Model):
             if regimen.actived: 
                 self.cai_shot = regimen.authorization_code_id.name 
             
-        for _sar in self.sequence_ids:
-            if _sar.journal_id == self.journal_id: 
-                self.cai_expires_shot = _sar.expiration_date
-                self.min_number_shot = str(_sar.vitt_min_value)
-                self.max_number_shot = str(_sar.vitt_max_value)
+        # for _sar in self.sequence_ids:
+        #     if _sar.journal_id == self.journal_id: 
+        #         self.cai_expires_shot = _sar.expiration_date
+        #         self.min_number_shot = str(_sar.vitt_min_value)
+        #         self.max_number_shot = str(_sar.vitt_max_value)
         
         return self.write({'state': 'open'})
 
