@@ -66,7 +66,7 @@ class AccountInvoice(models.Model):
                 self.cai_shot = regimen.authorization_code_id.name 
             
         for _sar in self.sequence_ids:
-            if _sar.code == 'out_invoice' and _sar.is_fiscal_sequence == True: 
+            if _sar.journal_id == self.journal_id: 
                 self.cai_expires_shot = _sar.expiration_date
                 self.min_number_shot = str(_sar.vitt_min_value)
                 self.max_number_shot = str(_sar.vitt_max_value)
