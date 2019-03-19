@@ -34,7 +34,8 @@
     'data': [
     'static/src/xml/custom_pos_view.xml'
     ],
-    'qweb': ['static/src/xml/pos_ticket_view.xml',
+    'qweb': [
+    #'static/src/xml/pos_ticket_view.xml',
     'static/src/xml/pos_extendent.xml'],
     'images': ['static/description/banner.jpg'],
     'demo': [],

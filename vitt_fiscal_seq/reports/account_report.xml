@@ -87,15 +87,15 @@
 
    <xpath expr="//div[@class='row mt32 mb32']"  position="after">
                         
-                        <div class="col-xs-2">
+                        <div class="col-xs-4">
                             <strong >OC Exento:</strong>
                             <p t-field="o.oc_exenta"/>                                           
                         </div>    
-                        <div class="col-xs-2">
+                        <div class="col-xs-4">
                             <strong>Reg Exento:</strong>
                             <p t-field="o.reg_exenta"/>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-xs-4">
                             <strong>Reg S.A.G.:</strong>
                             <p t-field="o.reg_sag"/>
                         </div>
