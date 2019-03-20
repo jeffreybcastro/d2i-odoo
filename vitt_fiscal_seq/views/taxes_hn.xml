@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <record model="ir.ui.view" id="taxes_form_view_hn">
+        <field name="name">account_taxes_form_view_hn</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form" />
+        <field name="arch" type="xml">
+            <field name= "amount_type" position="before" >
+                <field name="taxes_hn"></field>
+            </field>
+        </field>
+    </record>
+    </data>
+</odoo>
+
+
