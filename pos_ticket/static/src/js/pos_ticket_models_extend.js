@@ -3,6 +3,7 @@ odoo.define('pos_ticket.models_extend', function (require){
     var models = require('point_of_sale.models');
     var _super_order = models.Order.prototype;
     var _super_order_line = models.Orderline.prototype;
+    var _super_posmodel = models.PosModel.prototype;
     // var _super_order_receipt = models.ScreenWidget.prototype;
     var core = require('web.core');
     var gui = require('point_of_sale.gui');
@@ -61,6 +62,7 @@ renderElement: function() {
         this._super();
         this.$('.next').click(function(){
             self.order_is_valid();
+            console.log(self.pos.sequences);
         });
 
 
@@ -111,15 +113,18 @@ models.Orderline = models.Orderline.extend
     get_total_15: function(){
         // var total_15 =+ self.get_tax15();
         self = this;
-        var  product =  self.get_product();
+        var _taxes_hn = self.get_taxes();
         var total15 = 0.00;
-
-        for (var producto of product.taxes_id) {
-            if (producto == 2) {
+        // console.log(_taxes_hn);
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 1) {
                total15 = self.get_base_price();
-
             };
+
+
         };
+    
+        // console.log(total1);
         if (total15 != 0.00) {
         // console.log(total15);
         return total15;
@@ -128,17 +133,19 @@ models.Orderline = models.Orderline.extend
         get_total_18: function(){
         // var total_15 =+ self.get_tax15();
         self = this;
-        var  product =  self.get_product();
+        // var  product =  self.get_product();
+        var _taxes_hn = self.get_taxes();
         var total18 = 0.00;
-        for (var producto of product.taxes_id) {
-            if (producto == 3) {
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 2) {
                total18 = self.get_base_price();
-              
-            }
+            };
+
+
         };
         // console.log(total1);
         if (total18 != 0.00) {
-        console.log(total18);
+        // console.log(total18);
         return total18;
         };
 
@@ -147,13 +154,15 @@ models.Orderline = models.Orderline.extend
     get_total_excento: function(){
         // var total_15 =+ self.get_tax15();
         self = this;
-        var  product =  self.get_product();
+        // var  product =  self.get_product();
+        var _taxes_hn = self.get_taxes();
         var exento = 0.00;
-        for (var producto of product.taxes_id) {
-            if (producto == 4) {
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 3) {
                exento = self.get_base_price();
-               
-            }
+            };
+
+
         };
         // console.log(product.taxes_id)
         if (exento != 0.00) {
@@ -164,12 +173,15 @@ models.Orderline = models.Orderline.extend
 
     get_tax15: function(){
         self = this;
-        var  product =  self.get_product();
+        // var  _taxes_hn =  self.get_taxes();
+        var _taxes_hn = self.get_taxes();
         var isv15 = 0.00;
-        for (var producto of product.taxes_id) {
-            if (producto == 2) {
-               isv15 = self.get_base_price() * 0.15;
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 1) {
+               isv15 = self.get_base_price() * (producto.amount / 100);
             };
+
+
         };
         // console.log(isv15);
         return isv15;
@@ -177,24 +189,30 @@ models.Orderline = models.Orderline.extend
 
     get_tax18: function(){
         self = this;
-        var  product =  self.get_product();
+        // var  product =  self.get_product();
+        var _taxes_hn = self.get_taxes();
         var isv18 = 0.00;
-        for (var producto of product.taxes_id) {
-            if (producto == 3) {
-               isv18 = self.get_base_price() * 0.18;
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 2) {
+               isv18 = self.get_base_price() * (producto.amount / 100);
             };
+
+
         };
         // console.log(isv18);
         return isv18;
         },
     get_exento: function(){
         self = this;
-        var  product =  self.get_product();
+        // var  product =  self.get_product();
+        var _taxes_hn = self.get_taxes();
         var exento = 0.00;
-        for (var producto of product.taxes_id) {
-            if (!producto) {
+        for (var producto of _taxes_hn) {
+            if (producto.taxes_hn == 3) {
                exento = self.get_base_price();
             };
+
+
         };
         // console.log(exento);
         return exento;
@@ -202,9 +220,23 @@ models.Orderline = models.Orderline.extend
     
     });
 
+models.PosModel = models.PosModel.extend({
+initialize: function (session, attributes) {
+        // Add field to model
+        var partner_model = _.find(this.models, function(model){
+            return model.model === 'account.tax';
+        });
+        partner_model.fields.push('taxes_hn');
+        // run Super
+        return _super_posmodel.initialize.call(this, session, attributes)
+        },
+});
 
     models.Order = models.Order.extend
     ({
+
+
+
         export_for_printing: function() 
         {
             var json = _super_order.export_for_printing.apply(this,arguments);

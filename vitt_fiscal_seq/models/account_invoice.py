@@ -42,13 +42,13 @@ class AccountInvoice(models.Model):
         for rec in self:
             if not rec.oc_exenta and not rec.reg_exenta and not rec.reg_sag:
                 for line in rec.invoice_line_ids:
-                    if line.invoice_line_tax_ids.amount ==  15.0000:
+                    if line.invoice_line_tax_ids.taxes_hn == 1:
                         self.isv15 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
                         self.total_15 =+ line.price_subtotal
-                    elif line.invoice_line_tax_ids.amount == 18.0000:
+                    elif line.invoice_line_tax_ids.taxes_hn == 2:
                         self.isv18 =+ (line.price_subtotal * (line.invoice_line_tax_ids.amount/100))
                         self.total_18 =+ line.price_subtotal
-                    elif line.invoice_line_tax_ids.amount == 00.0000:
+                    elif line.invoice_line_tax_ids.amount == 3:
                         self.exento =+ line.price_subtotal
     
 
@@ -63,7 +63,15 @@ class AccountInvoice(models.Model):
     def invoice_validate(self):
         for regimen in self.sequence_ids.fiscal_sequence_regime_ids:
             if regimen.actived: 
-                self.cai_shot = regimen.authorization_code_id.name 
+                self.cai_shot = regimen.authorization_code_id.name
+
+        for sar  in self.sequence_ids:
+            for rec in sar:
+                if rec.is_fiscal_sequence == True and rec.journal_id == self.journal_id:
+                    self.cai_expires_shot = rec.expiration_date
+                    self.min_number_shot = str(rec.viit_min_value)
+                    self.max_number_shot = str(rec.viit_max_value)
+
             
  
         
