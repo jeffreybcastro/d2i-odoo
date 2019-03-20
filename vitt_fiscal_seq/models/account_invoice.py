@@ -69,8 +69,8 @@ class AccountInvoice(models.Model):
             for rec in sar:
                 if rec.is_fiscal_sequence == True and rec.journal_id == self.journal_id:
                     self.cai_expires_shot = rec.expiration_date
-                    self.min_number_shot = str(rec.viit_min_value)
-                    self.max_number_shot = str(rec.viit_max_value)
+                    self.min_number_shot = str(rec.vitt_min_value)
+                    self.max_number_shot = str(rec.vitt_max_value)
 
             
  
