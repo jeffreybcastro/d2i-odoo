@@ -62,8 +62,8 @@ class AccountInvoice(models.Model):
                 self.cai_shot = regimen.authorization_code_id.name
 
         self.cai_expires_shot = self.sequence_ids.expiration_date
-        self.min_number_shot = str(self.sequence_ids.rec.vitt_min_value)
-        self.max_number_shot = str(self.sequence_ids.rec.vitt_max_value)
+        self.min_number_shot = str(self.sequence_ids.vitt_min_value)
+        self.max_number_shot = str(self.sequence_ids.vitt_max_value)
 
 
         # for sar  in self.sequence_ids:
