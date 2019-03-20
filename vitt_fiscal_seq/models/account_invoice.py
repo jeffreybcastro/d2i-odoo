@@ -32,10 +32,6 @@ class AccountInvoice(models.Model):
     reg_exenta = fields.Char("Reg Exento N#")
     reg_sag = fields.Char("Reg S.A.G N#")
 
-
-
-
-
     @api.multi
     def get_isv(self):
         descuento = 0.00
@@ -65,16 +61,16 @@ class AccountInvoice(models.Model):
             if regimen.actived: 
                 self.cai_shot = regimen.authorization_code_id.name
 
-        for sar  in self.sequence_ids:
-            for rec in sar:
-                if rec.is_fiscal_sequence == True and rec.journal_id == self.journal_id:
-                    self.cai_expires_shot = rec.expiration_date
-                    self.min_number_shot = str(rec.vitt_min_value)
-                    self.max_number_shot = str(rec.vitt_max_value)
+        self.cai_expires_shot = self.sequence_ids.expiration_date
+        self.min_number_shot = str(self.sequence_ids.rec.vitt_min_value)
+        self.max_number_shot = str(self.sequence_ids.rec.vitt_max_value)
 
-            
- 
-        
+
+        # for sar  in self.sequence_ids:
+        #     if rec.is_fiscal_sequence == True and rec.journal_id == self.journal_id:
+        #         self.cai_expires_shot = rec.expiration_date
+        #         self.min_number_shot = str(rec.vitt_min_value)
+        #         self.max_number_shot = str(rec.vitt_max_value)
         return self.write({'state': 'open'})
 
     @api.multi
