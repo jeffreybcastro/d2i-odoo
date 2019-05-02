@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    
+		<!-- Add custom js for pos_orders_list -->	    
+        <template id="assets_for_pos_orders_list" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_ticket/static/src/js/pos_ticket_models_extend.js"/>
+            </xpath>
+        </template>
+        
+    </data>
+</odoo>

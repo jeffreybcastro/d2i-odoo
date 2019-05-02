@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="myReceiptTemplate" xml:space="preserve">
+    <t t-extend="XmlReceipt">
+         <t t-jquery=".cashier" t-operation='after' >
+            <div>
+                <hr/>
+                <!-- <h2>Factura : <t t-esc="receipt.get_number_invoice"/></h2><br/> -->
+                <h2>Factura : <t t-esc="order.get_number_invoice_()"/></h2><br/>
+                
+                CAI : <t t-esc="receipt.get_cai"/><br/>
+                Rango Autorizado :<br/> <t t-esc="receipt.get_min_value"/> Hasta <t t-esc="receipt.get_max_value"/> <br/>
+                Fecha Limite : <t t-esc="receipt.get_expiration_date"/> <br/>  
+                    
+                <t t-if="receipt.client">
+                     Cliente: <t t-esc="receipt.client"/><br/>
+                     RTN : <t t-esc="order.get_cliente()"/>
+                </t> 
+                 <t t-else="receipt.client">
+                     Cliente: CONSUMIDOR FINAL<br/>
+                     RTN : 9999999999999
+                    <br />
+                </t>
+                    <div>O.C. Exento N.° :</div> 
+                    <div>Reg Exento N.°: </div>
+                    <div>Reg S.A.G. N.°:</div> 
+                <div>-----------------------------------------------</div>
+             </div>
+        </t> 
+        <t t-jquery=".cashier" t-operation='replace'>
+            <div>----------------------------------------------------------</div>
+            Cajero: 
+            <t t-esc="receipt.cashier ? receipt.cashier : receipt.cashier"/><br />
+            Fecha :  <t t-esc="receipt.get_date_new"/>
+
+        </t> 
+
+        <t t-jquery=".total"  t-operation='after'>
+            <br />
+           <div>SON : <t t-esc='receipt.get_letras' /></div>
+        </t> 
+        <t t-jquery="t[t-esc='receipt.date.localestring']"  t-operation='replace'>
+            <br />
+           <div></div>
+        </t> 
+
+        <t t-jquery="t[t-if='receipt.total_discount']"  t-operation='replace'>
+           <div></div>
+        </t>
+        <t t-jquery="t[t-if='receipt.company.vat']"  t-operation='replace'>
+            <t t-if='receipt.company.vat'>
+                <div>RTN:<t t-esc='receipt.company.vat' /></div>
+            </t>
+        </t>
+        <t t-jquery=".total"  t-operation='before'>
+
+        </t>
+
+        <t t-jquery="t[t-if='!taxincluded']"  t-operation='replace'>
+            <t t-set="subtotal15" t-value="0.00"/>
+            <t t-set="subtotal18" t-value="0.00"/>
+            <t t-set="excento" t-value="0.00"/> 
+
+            <t t-set="x" t-value="0.00"/>
+            <t t-set="y" t-value="0.00"/>
+
+            <t t-foreach='receipt.orderlines' t-as='line2'>     
+                <t t-set="x" t-value=" x + line2.get_tax15"/>
+                <t t-set="y" t-value=" y +  line2.get_tax18"/>
+            </t>
+
+            <t t-foreach='receipt.orderlines' t-as='line3'>     
+                <t t-set="subtotal15" t-value=" subtotal15 +  line3.get_total_15"/>
+                <t t-set="subtotal18" t-value=" subtotal18 +  line3.get_total_18"/>
+                <t t-set="excento" t-value=" excento +  line3.get_total_excento"/>
+            </t>
+            <br/>
+            <line><right>--------</right></line>
+            <line><left>Importe Gravado 15%</left>
+            <right>L. <value t-att-value-decimals='pos.currency.decimals'> <t t-esc="subtotal15" /></value></right></line>
+            <line>
+                <left>ISV 15 %</left>
+                    <right>L. <value t-att-value-decimals='pos.currency.decimals'> <t t-esc='x'/></value></right>
+            </line>
+            <line><left>Importe Gravado 18%</left>
+            <right>L. <value t-att-value-decimals='pos.currency.decimals'> <t t-esc="subtotal18" /></value></right></line>
+            <line>
+            <left>ISV 18 %</left>
+                <right>L. <value t-att-value-decimals='pos.currency.decimals'> <t t-esc='y'/></value></right>
+            </line>
+            <line><left>Importe Exento</left><right>L. <value t-att-value-decimals='pos.currency.decimals'> <t t-esc="excento" /></value></right></line>
+            <line><left>Importe Exonerado</left><right>L. <value t-att-value-decimals='pos.currency.decimals'> 0.00 </value></right></line>
+            <line><left>Descuento y </left></line>
+            <line>
+                <left>Rebajas Otorgadas</left>              
+                <right>L. <value t-att-value-decimals='pos.currency.decimals'><t t-esc='receipt.get_disc_total'/></value></right>
+            </line>
+          
+        </t>
+
+
+        <t t-jquery=".orderlines"  t-operation='replace'>
+            <div class='orderlines' line-ratio='0.6'>
+                <t t-set="subtotal_pos" t-value="0.00"/>
+                <t t-foreach='receipt.orderlines' t-as='line'>
+                    <t t-set='simple' t-value='line.discount === 0 and line.unit_name === "Unit(s)" and line.quantity === 1' />
+                    <t t-if='simple'>
+                        <line>
+                            <left><t t-esc='line.product_name_wrapped[0]' /></left>
+                            <right><value t-att-value-decimals='pos.currency.decimals'><t t-esc='line.price_display' /></value></right>
+                        </line>
+                        <t t-call="XmlReceiptWrappedProductNameLines"/>
+                    </t>
+                    <t t-if='!simple'>
+                        <line><left><t t-esc='line.product_name_wrapped[0]' /></left></line>
+                        <t t-call="XmlReceiptWrappedProductNameLines"/>
+                        <t t-if='line.discount !== 0'>
+                            <line indent='1'><left>Discount: <t t-esc='line.discount' />%</left></line>
+                        </t>
+                        <line indent='1'>
+                            <left>
+                                <value t-att-value-decimals='pos.dp["Product Unit of Measure"]' value-autoint='on'>
+                                    <t t-esc='line.quantity' />
+                                </value>
+                                <t t-if='line.unit_name !== "Unit(s)"'>
+                                    <t t-esc='line.unit_name' /> 
+                                </t>
+                                x 
+                                <value t-att-value-decimals='pos.dp["Product Price"]'>
+                                    <t t-esc='line.price' />
+                                </value>
+                            </left>
+                            <right>
+                                <t t-set="subtotal_pos" t-value=" line.price * line.quantity "/>
+                                L. <value t-att-value-decimals='pos.currency.decimals'><t t-esc='price_display' /></value>
+                            </right>
+                        </line>
+                    </t>
+                </t>
+            </div>
+
+
+        </t>
+
+        <t t-jquery="t[t-if='taxincluded']"  t-operation='replace'>
+            <br />
+            <div></div>
+        </t>
+<!--          <t t-jquery="t[t-set='taxincluded']"  t-operation='replace'>
+            <br />
+            <div></div>
+        </t> -->
+
+        <t t-jquery=".total"  t-operation='replace'>
+            <line class='total' size='double-height'>
+                <left><pre>        Total</pre></left>
+                <right>L. <value t-att-value-decimals='pos.currency.decimals'><t t-esc='receipt.total_with_tax' /></value></right>
+            </line>
+            <br/><br/>
+        </t>
+
+    </t>
+
+</templates>
+
+

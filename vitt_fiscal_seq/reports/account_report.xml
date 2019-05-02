@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_account_invoice_inherit" inherit_id="account.report_invoice_document">
+            <xpath expr="//h2" position="after">
+
+            	<!-- We add the parameters to the Qweb report SAR  -->>
+                    <span> CAI :  </span> <span t-field="o.cai_shot" ></span><br/>
+                    <span> Authorized Range : </span> <span t-field="o.min_number_shot" ></span> To  <span t-field="o.max_number_shot" ></span><br/>
+                	<span> Expiration Date :  </span> <span t-field="o.cai_expires_shot" ></span>
+            </xpath>
+            <xpath expr="//h2" position="replace">
+            	<!-- Change of titles in report Qweb invoicing. -->
+                <h2>
+                	   <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Facturas</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                        <span t-if="o.type == 'out_refund'">Notas de Credito</span>
+                        <span t-if="o.type == 'in_refund'">Vendor Credit Note</span>
+                        <span t-if="o.type == 'in_invoice'">Vendor Bill</span>
+                        <span t-field="o.number"/>
+                </h2>
+            </xpath>
+
+            <xpath expr="//div/table" position="after">
+            	<!--Numbers to letters -->
+                        <span>Son :</span> <span t-field="o.amount_total_text"/>
+            </xpath>
+                    <xpath expr="//t[@t-foreach='o.amount_by_group']" position="replace">
+                <tr>
+                    <td class="text-right">
+                            <strong>Gravado 15%</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.total_15" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>ISV 15%</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.isv15" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>Gravado 18%</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.total_18" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>ISV 18%</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.isv18" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>Exento</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.exento" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>Exonerado</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o.total_exonerado" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                            <strong>Descuentos y Rebajas Otorgadas</strong>
+                    </td>
+                    <td class="text-right">
+                            <span t-field="o._desc" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </td>
+                </tr>
+        </xpath>
+
+   <xpath expr="//div[@class='row mt32 mb32']"  position="after">
+                        
+                        <div class="col-xs-4">
+                            <strong >OC Exento:</strong>
+                            <p t-field="o.oc_exenta"/>                                           
+                        </div>    
+                        <div class="col-xs-4">
+                            <strong>Reg Exento:</strong>
+                            <p t-field="o.reg_exenta"/>
+                        </div>
+                        <div class="col-xs-4">
+                            <strong>Reg S.A.G.:</strong>
+                            <p t-field="o.reg_sag"/>
+                        </div>
+    </xpath>
+
+        </template>
+    </data>
+</odoo> 
